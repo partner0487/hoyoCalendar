@@ -26,11 +26,39 @@
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
         locale: "zh-tw",
-        events: [], // 先空
+        events: [],
       });
       calendar.render();
 
-      // 按鈕更新
+      // --- 新增：封裝更新邏輯的函式 ---
+      async function loadCalendarData(sourceUrl) {
+        try {
+          const res = await fetch(sourceUrl);
+          if (!res.ok) throw new Error("讀取失敗");
+
+          const events = await res.json();
+          calendar.removeAllEvents();
+
+          events.forEach((e) => {
+            calendar.addEvent({
+              title: `${e.game} ${e.title}`,
+              start: e.dates,
+              color: gameColors[e.game] || "#2196F3",
+            });
+          });
+          console.log(`成功載入來自 ${sourceUrl} 的資料`);
+        } catch (e) {
+          console.error("載入失敗:", e);
+        }
+      }
+
+      // --- 關鍵：一進網頁先讀取 events.json ---
+      // 如果 events.json 不存在，它會報錯但不會影響網頁運作
+      window.addEventListener("DOMContentLoaded", () => {
+        loadCalendarData("/events.json");
+      });
+
+      // 按鈕更新（保持原樣，但改呼叫 API）
       document
         .getElementById("updateBtn")
         .addEventListener("click", async () => {
@@ -38,32 +66,12 @@
           btn.disabled = true;
           btn.textContent = "更新中...";
 
-          try {
-            const res = await fetch("/api/update", { method: "POST" });
-            if (!res.ok) throw new Error("更新失敗");
+          // 這裡改呼叫你的 API 路由
+          await loadCalendarData("/api/update");
 
-            const events = await res.json();
-
-            // 清空舊事件
-            calendar.removeAllEvents();
-
-            // 新增事件
-            events.forEach((e) => {
-              calendar.addEvent({
-                title: `${e.game} ${e.title}`,
-                start: e.dates,
-                color: gameColors[e.game] || "#2196F3",
-              });
-            });
-
-            alert("✅ 更新完成");
-          } catch (e) {
-            console.error(e);
-            alert("❌ 更新失敗");
-          } finally {
-            btn.disabled = false;
-            btn.textContent = "🔄 更新資料";
-          }
+          btn.disabled = false;
+          btn.textContent = "🔄 更新資料";
+          alert("✅ 更新完成");
         });
     </script>
     <style>
