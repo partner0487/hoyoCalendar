@@ -15,6 +15,13 @@
     <div id="calendar"></div>
 
     <script>
+      const gameColors = {
+        原神: "#4CAF50", // 綠
+        鐵道: "#3F51B5", // 藍紫
+        鳴潮: "#E91E63", // 粉紅
+      };
+
+      // 先載入日曆
       fetch("./events.json")
         .then((res) => res.json())
         .then((events) => {
@@ -33,11 +40,7 @@
           calendar.render();
         });
 
-      const gameColors = {
-        原神: "#4CAF50", // 綠
-        鐵道: "#3F51B5", // 藍紫
-        鳴潮: "#E91E63", // 粉紅
-      };
+      // 按鈕更新
       document
         .getElementById("updateBtn")
         .addEventListener("click", async () => {
@@ -46,16 +49,16 @@
           btn.textContent = "更新中...";
 
           try {
-            const res = await fetch("http://localhost:5000/update", {
-              method: "POST",
-            });
+            // 指向 Vercel API
+            const res = await fetch("/api/update", { method: "POST" });
 
             if (!res.ok) throw new Error("更新失敗");
 
             alert("✅ 更新完成");
-            location.reload();
+            location.reload(); // 重新讀 events.json
           } catch (e) {
             alert("❌ 更新失敗，請看終端機");
+            console.error(e);
           } finally {
             btn.disabled = false;
             btn.textContent = "🔄 更新資料";
