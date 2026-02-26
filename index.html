@@ -16,29 +16,19 @@
 
     <script>
       const gameColors = {
-        原神: "#4CAF50", // 綠
-        鐵道: "#3F51B5", // 藍紫
-        鳴潮: "#E91E63", // 粉紅
+        原神: "#4CAF50",
+        鐵道: "#3F51B5",
+        鳴潮: "#E91E63",
       };
 
-      // 先載入日曆
-      fetch("./events.json")
-        .then((res) => res.json())
-        .then((events) => {
-          const calendar = new FullCalendar.Calendar(
-            document.getElementById("calendar"),
-            {
-              initialView: "dayGridMonth",
-              locale: "zh-tw",
-              events: events.map((e) => ({
-                title: `${e.game} ${e.title}`,
-                start: e.dates,
-                color: gameColors[e.game] || "#2196F3",
-              })),
-            },
-          );
-          calendar.render();
-        });
+      // 初始化日曆
+      const calendarEl = document.getElementById("calendar");
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: "zh-tw",
+        events: [], // 先空
+      });
+      calendar.render();
 
       // 按鈕更新
       document
@@ -49,16 +39,27 @@
           btn.textContent = "更新中...";
 
           try {
-            // 指向 Vercel API
             const res = await fetch("/api/update", { method: "POST" });
-
             if (!res.ok) throw new Error("更新失敗");
 
+            const events = await res.json();
+
+            // 清空舊事件
+            calendar.removeAllEvents();
+
+            // 新增事件
+            events.forEach((e) => {
+              calendar.addEvent({
+                title: `${e.game} ${e.title}`,
+                start: e.dates,
+                color: gameColors[e.game] || "#2196F3",
+              });
+            });
+
             alert("✅ 更新完成");
-            location.reload(); // 重新讀 events.json
           } catch (e) {
-            alert("❌ 更新失敗，請看終端機");
             console.error(e);
+            alert("❌ 更新失敗");
           } finally {
             btn.disabled = false;
             btn.textContent = "🔄 更新資料";
