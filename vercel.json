@@ -1,9 +1,15 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "api/update.py",
+      "use": "@vercel/python"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/update",
-      "destination": "/api/update.py"
+      "destination": "api/update.py"
     }
   ]
 }
