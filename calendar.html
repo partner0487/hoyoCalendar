@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>遊戲更新日曆</title>
+    <button id="updateBtn" class="update-btn">🔄 更新資料</button>
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  </head>
+  <body>
+    <h2>二遊事件更新日曆</h2>
+    <div id="calendar"></div>
+
+    <script>
+      fetch("./events.json")
+        .then((res) => res.json())
+        .then((events) => {
+          const calendar = new FullCalendar.Calendar(
+            document.getElementById("calendar"),
+            {
+              initialView: "dayGridMonth",
+              locale: "zh-tw",
+              events: events.map((e) => ({
+                title: `${e.game} ${e.title}`,
+                start: e.dates,
+                color: gameColors[e.game] || "#2196F3",
+              })),
+            },
+          );
+          calendar.render();
+        });
+
+      const gameColors = {
+        原神: "#4CAF50", // 綠
+        鐵道: "#3F51B5", // 藍紫
+        鳴潮: "#E91E63", // 粉紅
+      };
+      document
+        .getElementById("updateBtn")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("updateBtn");
+          btn.disabled = true;
+          btn.textContent = "更新中...";
+
+          try {
+            const res = await fetch("http://localhost:5000/update", {
+              method: "POST",
+            });
+
+            if (!res.ok) throw new Error("更新失敗");
+
+            alert("✅ 更新完成");
+            location.reload();
+          } catch (e) {
+            alert("❌ 更新失敗，請看終端機");
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "🔄 更新資料";
+          }
+        });
+    </script>
+    <style>
+      body {
+        font-family: system-ui;
+        margin: 5px;
+      }
+
+      #calendar {
+        max-width: 1000px; /* ← 關鍵 */
+        margin: 0 auto; /* 置中 */
+      }
+      .fc-event-title {
+        font-size: 0.75rem;
+        white-space: normal; /* 允許換行 */
+      }
+      .update-btn {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        padding: 8px 14px;
+        font-size: 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #222;
+        color: white;
+      }
+
+      .update-btn:hover {
+        background: #444;
+      }
+    </style>
+  </body>
+</html>
