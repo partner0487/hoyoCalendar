@@ -19,7 +19,7 @@ while True:
 
     posts = data["data"]["list"]
     if not posts:
-        break   # 👈 沒資料 = 翻完了
+        break
 
     all_posts.extend(posts)
     page += 1

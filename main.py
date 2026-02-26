@@ -10,7 +10,7 @@ def generate_events():
     data = fetch_all()
     with open("events.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    print("✅ events.json 產生完成")
+    print("events.json 產生完成")
 
 if __name__ == "__main__":
     generate_events()
