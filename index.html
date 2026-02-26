@@ -50,7 +50,10 @@
 
           try {
             // 指向 Vercel API
-            const res = await fetch("/api/update", { method: "POST" });
+            const res = await fetch(
+              "https://hoyo-calendar.vercel.app/api/update",
+              { method: "POST" },
+            );
 
             if (!res.ok) throw new Error("更新失敗");
 
