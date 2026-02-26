@@ -1,21 +1,17 @@
 from flask import Flask, jsonify
-import subprocess
-from flask_cors import CORS
+import main  # 你的爬蟲程式
 
 app = Flask(__name__)
-CORS(app)  # ⭐ 關鍵一行
+
+@app.route("/events.json")
+def get_events():
+    data = main.fetch_all()  # 包含原神/鐵道/鳴潮
+    return jsonify(data)
 
 @app.route("/update", methods=["POST"])
-def update_calendar():
-    try:
-        # 執行 main.py
-        subprocess.run(
-            ["python", "main.py"],
-            check=True
-        )
-        return jsonify({"status": "ok"})
-    except Exception as e:
-        return jsonify({"status": "error", "msg": str(e)}), 500
+def update_events():
+    main.generate_events()  # 執行爬蟲，更新 events.json
+    return "✅ events.json 已更新"
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(debug=True)
