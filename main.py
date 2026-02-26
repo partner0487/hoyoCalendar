@@ -5,13 +5,16 @@ from starrail import fetch_starrail
 from ww import fetch_ww
 
 def fetch_all():
-    return fetch_genshin() + fetch_starrail() + fetch_ww()
-
-def generate_events():
-    data = fetch_all()
-    with open("events.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    print("events.json 產生完成")
+    # 同時調用三個抓取函式
+    results = []
+    results.extend(fetch_genshin())
+    results.extend(fetch_starrail())
+    results.extend(fetch_ww())
+    
+    # 這裡可以按日期排序 (Optional)
+    # results.sort(key=lambda x: x['dates'])
+    
+    return results
 
 def json_dumps(data):
     return json.dumps(data, ensure_ascii=False)
