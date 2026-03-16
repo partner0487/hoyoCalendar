@@ -61,6 +61,31 @@
         max-width: 1000px; /* ← 關鍵 */
         margin: 0 auto; /* 置中 */
       }
+      /* 修改 calendar 的格線為黑色 */
+      .fc .fc-scrollgrid,
+      .fc .fc-scrollgrid section {
+        border-color: black; /* 整個格線框線 */
+      }
+
+      .fc .fc-scrollgrid .fc-col-header-cell,
+      .fc .fc-scrollgrid .fc-daygrid-day {
+        border: 1px solid black; /* 每個單格線 */
+      }
+      /* daygrid 整個日曆的最外框 */
+      .fc .fc-daygrid {
+        border-right: 1px solid black;
+        border-bottom: 1px solid black;
+      }
+      /* 最後一列每個格子加 bottom */
+      .fc .fc-daygrid-body .fc-row:last-child .fc-daygrid-day {
+        border-bottom: 1px solid black;
+      }
+
+      /* 最後一欄每個格子加 right */
+      .fc .fc-daygrid-body .fc-row .fc-daygrid-day:last-child {
+        border-right: 1px solid black;
+      }
+
       .fc-event-title {
         font-size: 0.75rem;
         white-space: normal; /* 允許換行 */
