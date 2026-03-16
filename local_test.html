@@ -28,54 +28,33 @@
     </style>
   </head>
   <body>
+    <div
+      id="loadingScreen"
+      style="
+        position: fixed;
+        bottom: 20px; /* 距底部距離 */
+        right: 20px; /* 距右邊距離 */
+        display: inline-block; /* 自動包住影片 */
+        z-index: 9999;
+      "
+    >
+      <video
+        id="loadingVideo"
+        autoplay
+        muted
+        loop
+        style="max-width: 200px; max-height: 200px; border-radius: 5px"
+      ></video>
+    </div>
     <h2>本地 events.json 測試</h2>
-
     <div id="calendar"></div>
 
-    <script>
-      const gameColors = {
-        原神: "#4CAF50",
-        鐵道: "#3F51B5",
-        鳴潮: "#E91E63",
-      };
-
-      document.addEventListener("DOMContentLoaded", async () => {
-        const calendarEl = document.getElementById("calendar");
-
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: "dayGridMonth",
-          locale: "zh-tw",
-          events: [],
-        });
-
-        calendar.render();
-
-        try {
-          const res = await fetch("events.json");
-
-          if (!res.ok) throw new Error("讀取 events.json 失敗");
-
-          const data = await res.json();
-
-          data.forEach((e) => {
-            calendar.addEvent({
-              title: `${e.game} ${e.title}`,
-              start: e.dates,
-              color: gameColors[e.game] || "#2196F3",
-            });
-          });
-
-          console.log("成功載入 events.json");
-        } catch (err) {
-          console.error(err);
-
-          alert("讀取 events.json 失敗，請確認檔案存在");
-        }
-      });
-    </script>
+    <script src="./js/loading.js" type="module"></script>
+    <script src="./js/update.js" type="module"></script>
     <style>
       body {
         font-family: system-ui;
+        background-color: #e0dfd6;
         margin: 5px;
       }
       #calendar {
