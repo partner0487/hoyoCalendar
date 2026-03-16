@@ -1,85 +1,106 @@
 <!doctype html>
 <html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<title>Local 測試日曆</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Local 測試日曆</title>
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
-<style>
-body{
-    font-family: system-ui;
-    margin:20px;
-}
+    <style>
+      body {
+        font-family: system-ui;
+        margin: 20px;
+      }
 
-#calendar{
-    max-width:1000px;
-    margin:auto;
-}
+      #calendar {
+        max-width: 1000px;
+        margin: auto;
+      }
 
-.fc-event-title{
-    font-size:0.8rem;
-    white-space:normal;
-}
-</style>
+      .fc-event-title {
+        font-size: 0.8rem;
+        white-space: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>本地 events.json 測試</h2>
 
-</head>
-<body>
+    <div id="calendar"></div>
 
-<h2>本地 events.json 測試</h2>
+    <script>
+      const gameColors = {
+        原神: "#4CAF50",
+        鐵道: "#3F51B5",
+        鳴潮: "#E91E63",
+      };
 
-<div id="calendar"></div>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const calendarEl = document.getElementById("calendar");
 
-<script>
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          locale: "zh-tw",
+          events: [],
+        });
 
-const gameColors={
-    原神:"#4CAF50",
-    鐵道:"#3F51B5",
-    鳴潮:"#E91E63"
-}
+        calendar.render();
 
-document.addEventListener("DOMContentLoaded",async ()=>{
+        try {
+          const res = await fetch("events.json");
 
-    const calendarEl=document.getElementById("calendar")
+          if (!res.ok) throw new Error("讀取 events.json 失敗");
 
-    const calendar=new FullCalendar.Calendar(calendarEl,{
-        initialView:"dayGridMonth",
-        locale:"zh-tw",
-        events:[]
-    })
+          const data = await res.json();
 
-    calendar.render()
-
-    try{
-
-        const res=await fetch("events.json")
-
-        if(!res.ok) throw new Error("讀取 events.json 失敗")
-
-        const data=await res.json()
-
-        data.forEach(e=>{
+          data.forEach((e) => {
             calendar.addEvent({
-                title:`${e.game} ${e.title}`,
-                start:e.dates,
-                color:gameColors[e.game] || "#2196F3"
-            })
-        })
+              title: `${e.game} ${e.title}`,
+              start: e.dates,
+              color: gameColors[e.game] || "#2196F3",
+            });
+          });
 
-        console.log("成功載入 events.json")
+          console.log("成功載入 events.json");
+        } catch (err) {
+          console.error(err);
 
-    }catch(err){
-
-        console.error(err)
-
-        alert("讀取 events.json 失敗，請確認檔案存在")
-
-    }
-
-})
-
-</script>
-
-</body>
+          alert("讀取 events.json 失敗，請確認檔案存在");
+        }
+      });
+    </script>
+    <style>
+      body {
+        font-family: system-ui;
+        margin: 5px;
+      }
+      #calendar {
+        max-width: 1000px; /* ← 關鍵 */
+        margin: 0 auto; /* 置中 */
+      }
+      .fc-event-title {
+        font-size: 0.75rem;
+        white-space: normal; /* 允許換行 */
+      }
+      .update-btn {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        padding: 8px 14px;
+        font-size: 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #222;
+        color: white;
+      }
+      .update-btn:hover {
+        background: #444;
+      }
+    </style>
+  </body>
 </html>

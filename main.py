@@ -12,7 +12,6 @@ def fetch_all():
 
     return results
 
-
 def generate_events():
     data = fetch_all()
 
@@ -20,7 +19,6 @@ def generate_events():
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     print("✅ events.json 已更新")
-
 
 if __name__ == "__main__":
     generate_events()
