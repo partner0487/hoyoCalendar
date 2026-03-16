@@ -8,7 +8,7 @@ def fetch_genshin():
     params = {
         "iAppId": 32,
         "iChanId": 397,
-        "iPageSize": 5,  # 抓最近的 5 則公告通常就夠了
+        "iPageSize": 5,
         "iPage": 1,
         "sLangKey": "zh-tw"
     }
@@ -25,10 +25,16 @@ def fetch_genshin():
     
     # 預期匹配規則
     EVENT_PATTERNS = [
-        {"title": "版本更新", "regex": r"更新時間[：\s]*(\d{4}/\d{2}/\d{2})", "fmt": "%Y/%m/%d"},
-        {"title": "幻想真境劇詩", "regex": r"幻想真境劇詩將於(\d{4}年\d{1,2}月\d{1,2}日)", "fmt": "%Y年%m月%d日"}
+        {
+            "title": "版本更新",
+            "regex": r"〓更新時間〓\s*(\d{4}/\d{2}/\d{2})",
+            "fmt": "%Y/%m/%d"
+        },
+        {
+            "title": "幻想真境劇詩", 
+            "regex": r"幻想真境劇詩將於(\d{4}年\d{1,2}月\d{1,2}日)", 
+            "fmt": "%Y年%m月%d日"}
     ]
-
     for post in posts:
         raw_title = post["sTitle"]
         # 先用 BeautifulSoup 轉純文字，避免 HTML 標籤干擾正則
@@ -39,7 +45,7 @@ def fetch_genshin():
 
         # 1. 抓版本更新與劇詩
         for rule in EVENT_PATTERNS:
-            matches = re.findall(rule["regex"], content_text)
+            matches = re.findall(rule["regex"], content_text)            
             for d in matches:
                 try:
                     dt = datetime.strptime(d, rule["fmt"])
@@ -66,3 +72,6 @@ def fetch_genshin():
                 })
 
     return all_matches
+
+if __name__ == "__main__":
+    print(fetch_genshin())
