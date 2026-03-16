@@ -5,9 +5,7 @@ const gameColors = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const loadingFiles = [
-    "/loading/loading1.mp4",
-  ];
+  const loadingFiles = ["/loading/loading1.mp4"];
   const randomVideo =
     loadingFiles[Math.floor(Math.random() * loadingFiles.length)];
   document.getElementById("loadingVideo").src = randomVideo;
@@ -74,7 +72,22 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCalendarData("/api/update");
 
   // 更新按鈕
-  document
-    .getElementById("updateBtn")
-    .addEventListener("click", () => loadCalendarData("/api/update"));
+  document.getElementById("updateBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("updateBtn");
+    const calendarEl = document.getElementById("calendar");
+
+    // 先隱藏日曆
+    calendarEl.style.display = "none";
+
+    btn.disabled = true;
+    btn.textContent = "更新中...";
+
+    await loadCalendarData("/api/update");
+
+    btn.disabled = false;
+    btn.textContent = "🔄 更新資料";
+
+    // 更新完成後再顯示日曆
+    calendarEl.style.display = "block";
+  });
 });
