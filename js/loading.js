@@ -6,7 +6,7 @@ const gameColors = {
 
 document.addEventListener("DOMContentLoaded", () => {
   const loadingFiles = [
-    "./loading/loading1.mp4",
+    "/loading/loading1.mp4",
   ];
   const randomVideo =
     loadingFiles[Math.floor(Math.random() * loadingFiles.length)];
