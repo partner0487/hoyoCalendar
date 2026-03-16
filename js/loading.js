@@ -73,8 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const calendarEl = document.getElementById("calendar");
     const loadingScreen = document.getElementById("loadingScreen");
 
-    // 先隱藏日曆
-    calendarEl.style.display = "none";
     loadingScreen.style.display = "inline-block";
 
     btn.disabled = true;
@@ -85,8 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.disabled = false;
     btn.textContent = "🔄 更新資料";
 
-    // 更新完成後再顯示日曆
-    calendarEl.style.display = "block";
     loadingScreen.style.display = "none";
   });
 });
