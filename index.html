@@ -1,109 +1,85 @@
 <!doctype html>
 <html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <title>遊戲更新日曆</title>
-    <button id="updateBtn" class="update-btn">🔄 更新資料</button>
-    <link
-      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-  </head>
-  <body>
-    <h2>二遊事件更新日曆</h2>
-    <div id="calendar"></div>
 
-    <script>
-      const gameColors = {
-        原神: "#4CAF50",
-        鐵道: "#3F51B5",
-        鳴潮: "#E91E63",
-      };
+<head>
+<meta charset="UTF-8" />
+<title>遊戲更新日曆</title>
 
-      // 初始化日曆
-      const calendarEl = document.getElementById("calendar");
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
-        locale: "zh-tw",
-        events: [],
-      });
-      calendar.render();
+<link
+href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+rel="stylesheet"
+/>
 
-      // --- 新增：封裝更新邏輯的函式 ---
-      async function loadCalendarData(sourceUrl) {
-        try {
-          const res = await fetch(sourceUrl);
-          if (!res.ok) throw new Error("讀取失敗");
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
-          const events = await res.json();
-          calendar.removeAllEvents();
+</head>
 
-          events.forEach((e) => {
-            calendar.addEvent({
-              title: `${e.game} ${e.title}`,
-              start: e.dates,
-              color: gameColors[e.game] || "#2196F3",
-            });
-          });
-          console.log(`成功載入來自 ${sourceUrl} 的資料`);
-        } catch (e) {
-          console.error("載入失敗:", e);
-        }
-      }
+<body>
 
-      // --- 關鍵：一進網頁先讀取 events.json ---
-      // 如果 events.json 不存在，它會報錯但不會影響網頁運作
-      window.addEventListener("DOMContentLoaded", () => {
-        loadCalendarData("/events.json");
-      });
+<button id="updateBtn" class="update-btn">🔄 更新資料</button>
 
-      // 按鈕更新（保持原樣，但改呼叫 API）
-      document
-        .getElementById("updateBtn")
-        .addEventListener("click", async () => {
-          const btn = document.getElementById("updateBtn");
-          btn.disabled = true;
-          btn.textContent = "更新中...";
+<h2>二遊事件更新日曆</h2>
 
-          // 這裡改呼叫你的 API 路由
-          await loadCalendarData("/api/update");
+<div id="calendar"></div>
 
-          btn.disabled = false;
-          btn.textContent = "🔄 更新資料";
-          alert("✅ 更新完成");
-        });
-    </script>
-    <style>
-      body {
-        font-family: system-ui;
-        margin: 5px;
-      }
+<script>
 
-      #calendar {
-        max-width: 1000px; /* ← 關鍵 */
-        margin: 0 auto; /* 置中 */
-      }
-      .fc-event-title {
-        font-size: 0.75rem;
-        white-space: normal; /* 允許換行 */
-      }
-      .update-btn {
-        position: fixed;
-        top: 16px;
-        right: 16px;
-        padding: 8px 14px;
-        font-size: 14px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        background: #222;
-        color: white;
-      }
+const gameColors = {
+  原神:"#4CAF50",
+  鐵道:"#3F51B5",
+  鳴潮:"#E91E63"
+}
 
-      .update-btn:hover {
-        background: #444;
-      }
-    </style>
-  </body>
+document.addEventListener("DOMContentLoaded",()=>{
+
+  const calendarEl=document.getElementById("calendar")
+
+  const calendar=new FullCalendar.Calendar(calendarEl,{
+    initialView:"dayGridMonth",
+    locale:"zh-tw",
+    events:[]
+  })
+
+  calendar.render()
+
+  async function loadCalendarData(url){
+
+    const res=await fetch(url)
+
+    const events=await res.json()
+
+    calendar.removeAllEvents()
+
+    events.forEach(e=>{
+      calendar.addEvent({
+        title:`${e.game} ${e.title}`,
+        start:e.dates,
+        color:gameColors[e.game]||"#2196F3"
+      })
+    })
+
+  }
+
+  loadCalendarData("/events.json")
+
+  document.getElementById("updateBtn")
+  .addEventListener("click",async()=>{
+
+    const btn=document.getElementById("updateBtn")
+
+    btn.disabled=true
+    btn.textContent="更新中..."
+
+    await loadCalendarData("/api/update")
+
+    btn.disabled=false
+    btn.textContent="🔄 更新資料"
+
+  })
+
+})
+
+</script>
+
+</body>
 </html>

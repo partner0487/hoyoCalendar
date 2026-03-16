@@ -8,7 +8,6 @@ def fetch_ww():
         posts = requests.get(url_list, timeout=10).json()
     except Exception as e:
         print(f"Fetch list failed: {e}")
-        return []
 
     filtered = [
         p for p in posts
@@ -17,7 +16,7 @@ def fetch_ww():
 
     results = []
     for post in filtered:
-        dates = "TBD" 
+        dates = None
         
         url_detail = f"https://media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/json/G152/zh/article/{post['articleId']}.json"
         try:
@@ -39,5 +38,5 @@ def fetch_ww():
         except Exception as e:
             print(f"Detail parsing error: {e}")
             continue
-            
+    
     return results
