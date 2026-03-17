@@ -2,7 +2,8 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <title>遊戲更新日曆</title>
+    <link rel="icon" href="/assets/logo_black_removebg.png" />
+    <title>二遊更新日曆</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
@@ -16,6 +17,7 @@
     <div
       id="loadingScreen"
       style="
+        background-color: #e0dfd6;
         position: fixed;
         bottom: 20px;
         right: 20px;
@@ -24,7 +26,7 @@
       "
     >
       <h1 style="display: flex; justify-content: center; align-items: center">
-        更新中 請稍後
+        更新資料中 請稍後
       </h1>
       <video
         id="loadingVideo"
@@ -33,10 +35,15 @@
         muted
         loop
         style="max-width: 400px; border-radius: 5px"
-      >您的瀏覽器不支援影片播放。</video>
+      >
+        您的瀏覽器不支援影片播放。
+      </video>
     </div>
     <button id="updateBtn" class="update-btn">🔄 更新資料</button>
-    <h2>二遊事件更新日曆</h2>
+    <h1>
+      <img src="/assets/logo_white_removebg.png" style="height: 50px; vertical-align: middle" />
+      二遊更新日曆 (目前支援原/鐵/鳴)
+    </h1>
     <div id="calendar"></div>
     <script src="./js/loading.js" type="module"></script>
     <script src="./js/update.js" type="module"></script>
