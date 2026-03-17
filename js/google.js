@@ -1,4 +1,6 @@
 let tokenClient;
+let isExported = false; // 是否已導出
+
 const CLIENT_ID =
   "421221289192-qtf3spuf5bqgd8m4ss201kstc9vqtqf8.apps.googleusercontent.com";
 const SCOPES =
@@ -110,7 +112,6 @@ async function addEventToGoogleCalendar(event) {
   });
 
   if (listRes.result.items && listRes.result.items.length > 0) {
-    // 已存在 → 更新
     const existingEvent = listRes.result.items[0];
     return gapi.client.calendar.events.update({
       calendarId: "primary",
@@ -124,7 +125,6 @@ async function addEventToGoogleCalendar(event) {
       },
     });
   } else {
-    // 不存在 → 新增
     return gapi.client.calendar.events.insert({
       calendarId: "primary",
       resource: {
@@ -138,10 +138,64 @@ async function addEventToGoogleCalendar(event) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const exportBtn = document.getElementById("exportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", exportAllEvents);
-    console.log("導出按鈕監聽器已綁定");
+async function deleteAllEvents() {
+  if (!gapi.client.getToken()) {
+    alert("請先登入 Google 帳號！");
+    return;
   }
+
+  if (!confirm("確定要刪除所有由本網站建立的事件嗎？")) return;
+
+  const res = await gapi.client.calendar.events.list({
+    calendarId: "primary",
+    q: "由 Hoyo-Calendar 自動產生", // 關鍵字搜尋
+  });
+
+  const events = res.result.items || [];
+
+  console.log(`找到 ${events.length} 個事件準備刪除`);
+
+  for (const e of events) {
+    try {
+      await gapi.client.calendar.events.delete({
+        calendarId: "primary",
+        eventId: e.id,
+      });
+      console.log(`🗑️ 已刪除: ${e.summary}`);
+    } catch (err) {
+      console.error("刪除失敗", err);
+    }
+
+    await sleep(300); // 避免 API rate limit
+  }
+
+  alert("刪除完成！");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("exportBtn");
+
+  btn.addEventListener("click", async () => {
+    if (!isExported) {
+      await exportAllEvents();
+      switchToDeleteMode();
+    } else {
+      await deleteAllEvents();
+      switchToExportMode();
+    }
+  });
 });
+
+function switchToDeleteMode() {
+  const btn = document.getElementById("exportBtn");
+  btn.textContent = "🗑️ 刪除所有事件";
+  btn.classList.add("delete-mode");
+  isExported = true;
+}
+
+function switchToExportMode() {
+  const btn = document.getElementById("exportBtn");
+  btn.textContent = "📤 導出到 Google 日曆";
+  btn.classList.remove("delete-mode");
+  isExported = false;
+}
