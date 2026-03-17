@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
   </head>
 
-  <body>
+  <body onload="handleClientLoad()">
     <div
       id="loadingScreen"
       style="
@@ -39,13 +39,20 @@
         您的瀏覽器不支援影片播放。
       </video>
     </div>
+    <button onclick="signIn()">登入 Google 帳號</button>
     <button id="updateBtn" class="update-btn">🔄 更新資料</button>
+    <button id="exportBtn">導出到 Google Calendar</button>
     <h1>
-      <img src="/assets/logo_white_removebg.png" style="height: 50px; vertical-align: middle" />
+      <img
+        src="/assets/logo_white_removebg.png"
+        style="height: 50px; vertical-align: middle"
+      />
       二遊更新日曆 (目前支援原/鐵/鳴)
     </h1>
     <div id="calendar"></div>
     <script src="./js/loading.js" type="module"></script>
+    <script src="./js/google.js" type="module"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <style>
       body {
         font-family: system-ui;
