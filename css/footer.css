@@ -2,8 +2,9 @@
   background-color: #272727; /* 棕色 */
   color: #fff; /* 白字 */
   padding: 20px;
-  width: 100%;
+  position: fixed;
   bottom: 0;
+  width: 100%;
   text-align: center;
   font-size: 0.9rem;
 }
