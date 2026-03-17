@@ -30,7 +30,7 @@ window.handleClientLoad = function () {
       ).then((res) => res.json());
 
       const btn = document.getElementById("loginBtn");
-      btn.textContent = userInfo.email;
+      btn.textContent = userInfo.email.split("@")[0];
       btn.disabled = true;
       btn.classList.add("active");
     },
@@ -41,17 +41,12 @@ window.signIn = function () {
   tokenClient.requestAccessToken({ prompt: "consent" });
 };
 
-// 全部導出函式
 function exportAllEvents() {
-  // 檢查是否有登入（Token 是否存在）
   if (!gapi.client.getToken()) {
     alert("請先登入 Google 帳號！");
     window.signIn();
     return;
   }
-
-  // 取得你的 events 資料（假設存放在 localStorage 或變數中）
-  // 這裡需要確保你的 'events' 變數是有資料的
   const eventsToExport = JSON.parse(
     localStorage.getItem("calendarEvents") || "[]",
   );
@@ -62,28 +57,35 @@ function exportAllEvents() {
   }
 
   eventsToExport.forEach((e) => addEventToGoogleCalendar(e));
-  alert("導出程序已開始，請查看 Console 紀錄。");
+  alert("導出程序已開始，請稍後");
 }
 
+const gameToColorId = {
+  原神: "2",
+  鐵道: "7",
+  鳴潮: "4",
+};
+
 function addEventToGoogleCalendar(event) {
-  const startDate = new Date(event.dates);
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 1);
+  const startDay = event.dates;
+  const nextDay = new Date(startDay);
+  nextDay.setDate(nextDay.getDate() + 1);
+  const endDay = nextDay.toISOString().split("T")[0];
+
+  const colorId = gameToColorId[event.game];
 
   const gEvent = {
-    summary: `${event.game} ${event.title}`,
-    description: "由 Hoyo-Calendar 自動產生",
-    start: { date: event.dates }, 
-    end: { date: endDate.toISOString().split("T")[0] }, 
+    summary: `[${event.game}] ${event.title}`,
+    description: `活動圖片：${event.image}`,
+    start: { date: startDay },
+    end: { date: endDay },
+    ...(colorId && { colorId: colorId }),
   };
 
-  gapi.client.calendar.events
-    .insert({
-      calendarId: "primary",
-      resource: gEvent,
-    })
-    .then((res) => console.log(`成功新增事件: ${event.title}`, res))
-    .catch((err) => console.error(`新增失敗: ${event.title}`, err));
+  return gapi.client.calendar.events.insert({
+    calendarId: "primary",
+    resource: gEvent,
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
