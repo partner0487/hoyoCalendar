@@ -26,8 +26,8 @@
   background-color: #444;
 }
 
-.login-btn.active { 
-  background-color: #444; 
+.login-btn.active {
+  background-color: #444;
 }
 
 .output-btn {
@@ -36,6 +36,10 @@
 
 .output-btn:hover {
   background-color: #444;
+}
+
+.delete-mode {
+  background-color: #c0392b !important;
 }
 
 .update-btn {
