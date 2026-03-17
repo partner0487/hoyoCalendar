@@ -33,7 +33,8 @@ def fetch_ww():
             results.append({
                 "game": "鳴潮",
                 "title": f"{post['articleTitle'].split('更')[0].split('》')[-1]}",
-                "dates": dates
+                "dates": dates,
+                "img": None
             })
         except Exception as e:
             print(f"Detail parsing error: {e}")

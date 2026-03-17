@@ -6,20 +6,22 @@ const gameColors = {
 
 document.addEventListener("DOMContentLoaded", () => {
   const calendarEl = document.getElementById("calendar");
+  const loadingScreen = document.getElementById("loadingScreen");
+  const updateBtn = document.getElementById("updateBtn");
 
+  // 初始化 FullCalendar
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "zh-tw",
     events: [],
   });
-
   calendar.render();
 
   async function loadCalendarData(url) {
-    const btn = document.getElementById("updateBtn");
-    btn.disabled = true;
-    btn.textContent = "更新中...";
-    document.getElementById("loadingScreen").style.display = "inline-block";
+    // 顯示 loading
+    loadingScreen.style.display = "inline-block";
+    updateBtn.disabled = true;
+    updateBtn.textContent = "更新中...";
 
     let events = [];
 
@@ -33,24 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
       if (fallback) events = JSON.parse(fallback);
     }
 
+    // 清空再加事件
     calendar.removeAllEvents();
     events.forEach((e) => {
       calendar.addEvent({
         title: `${e.game} ${e.title}`,
         start: e.dates,
         color: gameColors[e.game] || "#2196F3",
+        extendedProps: { image: e.image },
       });
     });
 
-    btn.disabled = false;
-    btn.textContent = "🔄 更新資料";
-
-    // 隱藏 loading 畫面
-    const loadingScreen = document.getElementById("loadingScreen");
+    // 隱藏 loading
     loadingScreen.style.display = "none";
+    updateBtn.disabled = false;
+    updateBtn.textContent = "🔄 更新資料";
   }
 
-  // 頁面載入先讀 localStorage
+  // 頁面先讀 localStorage
   const saved = localStorage.getItem("calendarEvents");
   if (saved) {
     const events = JSON.parse(saved);
@@ -59,30 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
         title: `${e.game} ${e.title}`,
         start: e.dates,
         color: gameColors[e.game] || "#2196F3",
+        extendedProps: { image: e.image },
       });
     });
-    document.getElementById("loadingScreen").style.display = "none";
   }
 
   // 抓最新資料更新 localStorage
   loadCalendarData("/api/update");
 
-  // 更新按鈕
-  document.getElementById("updateBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("updateBtn");
-    const calendarEl = document.getElementById("calendar");
-    const loadingScreen = document.getElementById("loadingScreen");
-
-    loadingScreen.style.display = "inline-block";
-
-    btn.disabled = true;
-    btn.textContent = "更新中...";
-
-    await loadCalendarData("/api/update");
-
-    btn.disabled = false;
-    btn.textContent = "🔄 更新資料";
-
-    loadingScreen.style.display = "none";
-  });
+  // 更新按鈕事件
+  updateBtn.addEventListener("click", () => loadCalendarData("/api/update"));
 });

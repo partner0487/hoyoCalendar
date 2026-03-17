@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -23,7 +24,6 @@ def fetch_genshin():
 
     all_matches = []
     
-    # 預期匹配規則
     EVENT_PATTERNS = [
         {
             "title": "版本更新",
@@ -33,11 +33,22 @@ def fetch_genshin():
         {
             "title": "幻想真境劇詩", 
             "regex": r"幻想真境劇詩將於(\d{4}年\d{1,2}月\d{1,2}日)", 
-            "fmt": "%Y年%m月%d日"}
+            "fmt": "%Y年%m月%d日"
+        }
     ]
+
     for post in posts:
         raw_title = post["sTitle"]
-        # 先用 BeautifulSoup 轉純文字，避免 HTML 標籤干擾正則
+
+        # ✔ 解析圖片 URL（重點）
+        img_url = None
+        try:
+            ext = json.loads(post.get("sExt", "{}"))
+            img_url = ext.get("banner", [{}])[0].get("url")
+        except:
+            pass
+
+        # HTML → 純文字
         content_text = BeautifulSoup(post["sContent"], "html.parser").get_text()
         
         clean_title = raw_title.split("更")[0].strip()
@@ -55,20 +66,26 @@ def fetch_genshin():
                     all_matches.append({
                         "game": "原神",
                         "title": clean_title if rule["title"] == "版本更新" else rule["title"],
-                        "dates": dt.strftime("%Y-%m-%d")
-                    })
-                except: continue
+                        "dates": dt.strftime("%Y-%m-%d"),
 
-        # 2. 抓深境螺旋 (依賴上面抓到的 version_date 年份)
+                        # ✔ 加這行
+                        "image": img_url
+                    })
+                except:
+                    continue
+
+        # 2. 深境螺旋
         spiral_matches = re.findall(r"深境螺旋將於(\d{1,2})月(\d{1,2})日更新", content_text)
         for month, day in spiral_matches:
             if version_date:
-                # 假設螺旋跟版本更新是在同一年
                 dt = datetime(year=version_date.year, month=int(month), day=int(day))
                 all_matches.append({
                     "game": "原神",
                     "title": "深境螺旋",
-                    "dates": dt.strftime("%Y-%m-%d")
+                    "dates": dt.strftime("%Y-%m-%d"),
+
+                    # ✔ 這裡也加
+                    "image": img_url
                 })
 
     return all_matches
