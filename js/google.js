@@ -23,10 +23,10 @@ window.handleClientLoad = function () {
       }
       console.log("登入並獲取 Token 成功");
 
-      // ✅ 修改按鈕文字
       const btn = document.getElementById("loginBtn");
-      btn.textContent = "已登入";
+      btn.textContent = user.getBasicProfile().getEmail();
       btn.disabled = true;
+      btn.classList.add("active");
     },
   });
 };

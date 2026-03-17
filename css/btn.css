@@ -26,6 +26,10 @@
   background-color: #444;
 }
 
+.login-btn.active { 
+  background-color: #444; 
+}
+
 .output-btn {
   background-color: #222;
 }
