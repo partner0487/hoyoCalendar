@@ -40,26 +40,50 @@ window.handleClientLoad = function () {
 window.signIn = function () {
   tokenClient.requestAccessToken({ prompt: "consent" });
 };
+// 定義延遲工具
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function exportAllEvents() {
+document.getElementById("exportBtn").addEventListener("click", async () => {
+  // 檢查是否登入
   if (!gapi.client.getToken()) {
     alert("請先登入 Google 帳號！");
     window.signIn();
     return;
   }
 
-  const eventsToExport = JSON.parse(
-    localStorage.getItem("calendarEvents") || "[]",
-  );
-
-  if (eventsToExport.length === 0) {
-    alert("目前沒有任何事件可以導出。");
+  // 取得資料來源 (請確保變數名稱正確，假設你的資料叫 allEvents)
+  if (typeof allEvents === "undefined" || allEvents.length === 0) {
+    alert("沒有可導出的事件！");
     return;
   }
 
-  eventsToExport.forEach((e) => addEventToGoogleCalendar(e));
-  alert("導出程序已開始，請稍後。");
-}
+  const btn = document.getElementById("exportBtn");
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "正在同步至日曆...";
+
+  try {
+    for (const event of allEvents) {
+      try {
+        // 等待 Google 回傳成功
+        await addEventToGoogleCalendar(event);
+        console.log(`✅ 成功新增: ${event.title}`);
+      } catch (err) {
+        // 如果單一事件失敗（例如又是 403），會記錄在這裡
+        console.error(`❌ 新增失敗: ${event.title}`, err);
+      }
+
+      // *** 重點：每新增一個就強迫休息 500 毫秒，避免被 Google 封鎖 ***
+      await sleep(500);
+    }
+    alert("導出程序完成！請至 Google 日曆查看。");
+  } catch (globalErr) {
+    console.error("發生非預期錯誤:", globalErr);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
 
 const gameToColorId = {
   原神: "2", // 鼠尾草綠
@@ -78,16 +102,13 @@ function addEventToGoogleCalendar(event) {
     description: "由 Hoyo-Calendar 自動產生",
     start: { date: event.dates },
     end: { date: endDate.toISOString().split("T")[0] },
-    ...(colorId && { colorId: colorId })
+    ...(colorId && { colorId: colorId }),
   };
 
-  gapi.client.calendar.events
-    .insert({
-      calendarId: "primary",
-      resource: gEvent,
-    })
-    .then((res) => console.log(`成功新增事件: ${event.title}`, res))
-    .catch((err) => console.error(`新增失敗: ${event.title}`, err));
+  return gapi.client.calendar.events.insert({
+    calendarId: "primary",
+    resource: gEvent,
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
