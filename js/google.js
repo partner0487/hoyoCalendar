@@ -93,30 +93,55 @@ const gameToColorId = {
   鐵道: "7", // 孔雀藍
   鳴潮: "4", // 火鶴粉
 };
-
-function addEventToGoogleCalendar(event) {
+async function addEventToGoogleCalendar(event) {
   const startDate = event.dates;
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + 1);
 
   const colorId = gameToColorId[event.game];
 
-  const eventId = btoa(`${event.game}-${event.title}-${event.dates}`).replace(
-    /=/g,
-    "",
-  );
-
-  const gEvent = {
-    id: eventId,
-    summary: `${event.game} ${event.title}`,
-    description: "由 Hoyo-Calendar 自動產生",
-    start: { date: startDate },
-    end: { date: endDate.toISOString().split("T")[0] },
-    ...(colorId && { colorId: colorId }),
-  };
-
-  return gapi.client.calendar.events.insert({
+  // 先查詢當天所有事件
+  const listRes = await gapi.client.calendar.events.list({
     calendarId: "primary",
-    resource: gEvent,
+    timeMin: new Date(startDate).toISOString(),
+    timeMax: new Date(endDate).toISOString(),
+    singleEvents: true,
+    q: `${event.game} ${event.title}`, // 搜尋標題
   });
+
+  if (listRes.result.items && listRes.result.items.length > 0) {
+    // 已存在 → 更新
+    const existingEvent = listRes.result.items[0];
+    return gapi.client.calendar.events.update({
+      calendarId: "primary",
+      eventId: existingEvent.id,
+      resource: {
+        summary: `${event.game} ${event.title}`,
+        description: "由 Hoyo-Calendar 自動產生",
+        start: { date: startDate },
+        end: { date: endDate.toISOString().split("T")[0] },
+        ...(colorId && { colorId: colorId }),
+      },
+    });
+  } else {
+    // 不存在 → 新增
+    return gapi.client.calendar.events.insert({
+      calendarId: "primary",
+      resource: {
+        summary: `${event.game} ${event.title}`,
+        description: "由 Hoyo-Calendar 自動產生",
+        start: { date: startDate },
+        end: { date: endDate.toISOString().split("T")[0] },
+        ...(colorId && { colorId: colorId }),
+      },
+    });
+  }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.getElementById("exportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", exportAllEvents);
+    console.log("導出按鈕監聽器已綁定");
+  }
+});
