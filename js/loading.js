@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initialView: "dayGridMonth",
     locale: "zh-tw",
     events: [],
-    eventMouseEnter: function(info) {
+    eventMouseEnter: function (info) {
       const img = info.event.extendedProps.image;
       if (!img) return;
 
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("mousemove", move);
       info.el._moveHandler = move;
     },
-    eventMouseLeave: function(info) {
+    eventMouseLeave: function (info) {
       const tooltip = document.getElementById("imgTooltip");
       if (tooltip) tooltip.remove();
       if (info.el._moveHandler) {
@@ -76,6 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
         extendedProps: { image: e.image }, // 存版本圖片
       });
     });
+
+    const exportBtn = document.getElementById("exportBtn");
+    exportBtn.disabled = false;
 
     loadingScreen.style.display = "none";
     updateBtn.disabled = false;
