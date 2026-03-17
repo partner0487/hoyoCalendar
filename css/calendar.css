@@ -1,0 +1,33 @@
+body {
+  font-family: system-ui;
+  background-color: #e0dfd6;
+  margin: 5px;
+}
+#calendar {
+  max-width: 1000px; /* ← 關鍵 */
+  margin: 0 auto; /* 置中 */
+}
+/* 修改 calendar 的格線為黑色 */
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid section {
+  border-color: black;
+}
+
+.fc .fc-scrollgrid .fc-col-header-cell,
+.fc .fc-scrollgrid .fc-daygrid-day {
+  border: 1px solid black;
+}
+.fc .fc-daygrid {
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+}
+.fc .fc-daygrid-body .fc-row:last-child .fc-daygrid-day {
+  border-bottom: 1px solid black;
+}
+.fc .fc-daygrid-body .fc-row .fc-daygrid-day:last-child {
+  border-right: 1px solid black;
+}
+.fc-event-title {
+  font-size: 0.75rem;
+  white-space: normal; /* 允許換行 */
+}

@@ -56,78 +56,32 @@
       二遊更新日曆 (目前支援原/鐵/鳴)
     </h1>
     <div id="calendar"></div>
-    <script src="./js/loading.js" type="module"></script>
-    <script src="./js/google.js" type="module"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
-    <link rel="stylesheet" href="./css/btn.css" />
-    <style>
-      body {
-        font-family: system-ui;
-        background-color: #e0dfd6;
-        margin: 5px;
-      }
-      #calendar {
-        max-width: 1000px; /* ← 關鍵 */
-        margin: 0 auto; /* 置中 */
-      }
-      /* 修改 calendar 的格線為黑色 */
-      .fc .fc-scrollgrid,
-      .fc .fc-scrollgrid section {
-        border-color: black;
-      }
 
-      .fc .fc-scrollgrid .fc-col-header-cell,
-      .fc .fc-scrollgrid .fc-daygrid-day {
-        border: 1px solid black;
-      }
-      .fc .fc-daygrid {
-        border-right: 1px solid black;
-        border-bottom: 1px solid black;
-      }
-      .fc .fc-daygrid-body .fc-row:last-child .fc-daygrid-day {
-        border-bottom: 1px solid black;
-      }
-      .fc .fc-daygrid-body .fc-row .fc-daygrid-day:last-child {
-        border-right: 1px solid black;
-      }
-      .fc-event-title {
-        font-size: 0.75rem;
-        white-space: normal; /* 允許換行 */
-      }
-    </style>
     <footer id="site-footer">
       <div class="footer-content">
         <p>開發人員: 夥伴</p>
         <p>
           GitHub:
-          <a href="https://github.com/你的帳號" target="_blank"
-            >github.com/你的帳號</a
+          <a href="https://github.com/partner0487/hoyoCalendar" target="_blank"
+            >github</a
           >
         </p>
         <p>
           隱私權政策:
-          <a href="https://你的網站/隱私政策" target="_blank">查看政策</a>
+          <a
+            href="https://hoyo-calendar.vercel.app/Privacy.html"
+            target="_blank"
+            >查看政策</a
+          >
         </p>
       </div>
     </footer>
 
-    <style>
-      #site-footer {
-        background-color: #8b5e3c; /* 棕色 */
-        color: #fff; /* 白字 */
-        padding: 20px;
-        text-align: center;
-        font-size: 0.9rem;
-      }
-
-      #site-footer a {
-        color: #ffddaa; /* 淡黃橘色連結 */
-        text-decoration: underline;
-      }
-
-      #site-footer a:hover {
-        color: #fff;
-      }
-    </style>
+    <script src="./js/loading.js" type="module"></script>
+    <script src="./js/google.js" type="module"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <link rel="stylesheet" href="./css/btn.css" />
+    <link rel="stylesheet" href="./css/calendar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
   </body>
 </html>
