@@ -40,50 +40,53 @@ window.handleClientLoad = function () {
 window.signIn = function () {
   tokenClient.requestAccessToken({ prompt: "consent" });
 };
-// 定義延遲工具
+// 定義延遲工具函數 (如果還沒加的話)
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-document.getElementById("exportBtn").addEventListener("click", async () => {
-  // 檢查是否登入
+async function exportAllEvents() {
   if (!gapi.client.getToken()) {
     alert("請先登入 Google 帳號！");
     window.signIn();
     return;
   }
 
-  // 取得資料來源 (請確保變數名稱正確，假設你的資料叫 allEvents)
-  if (typeof allEvents === "undefined" || allEvents.length === 0) {
-    alert("沒有可導出的事件！");
+  const eventsToExport = JSON.parse(
+    localStorage.getItem("calendarEvents") || "[]",
+  );
+
+  if (eventsToExport.length === 0) {
+    alert("目前沒有任何事件可以導出。");
     return;
   }
 
   const btn = document.getElementById("exportBtn");
-  btn.disabled = true;
   const originalText = btn.textContent;
-  btn.textContent = "正在同步至日曆...";
+  btn.disabled = true;
+  btn.textContent = "導出中 (請勿關閉視窗)...";
+
+  console.log(`準備導出 ${eventsToExport.length} 個事件...`);
 
   try {
-    for (const event of allEvents) {
+    for (const e of eventsToExport) {
       try {
-        // 等待 Google 回傳成功
-        await addEventToGoogleCalendar(event);
-        console.log(`✅ 成功新增: ${event.title}`);
+        await addEventToGoogleCalendar(e);
+        console.log(`✅ 成功導出: ${e.title}`);
       } catch (err) {
-        // 如果單一事件失敗（例如又是 403），會記錄在這裡
-        console.error(`❌ 新增失敗: ${event.title}`, err);
+        console.error(`❌ 導出失敗: ${e.title}`, err);
       }
 
-      // *** 重點：每新增一個就強迫休息 500 毫秒，避免被 Google 封鎖 ***
       await sleep(500);
     }
-    alert("導出程序完成！請至 Google 日曆查看。");
-  } catch (globalErr) {
-    console.error("發生非預期錯誤:", globalErr);
+
+    alert("導出程序已完成！");
+  } catch (error) {
+    console.error("導出過程發生嚴重錯誤:", error);
+    alert("導出時發生錯誤，請查看主控台。");
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
   }
-});
+}
 
 const gameToColorId = {
   原神: "2", // 鼠尾草綠
@@ -92,15 +95,22 @@ const gameToColorId = {
 };
 
 function addEventToGoogleCalendar(event) {
-  const startDate = new Date(event.dates);
+  const startDate = event.dates;
   const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 1);
+  endDate.setDate(endDate.getDate() + 1);
+
   const colorId = gameToColorId[event.game];
 
+  const eventId = btoa(`${event.game}-${event.title}-${event.dates}`).replace(
+    /=/g,
+    "",
+  );
+
   const gEvent = {
+    id: eventId,
     summary: `${event.game} ${event.title}`,
     description: "由 Hoyo-Calendar 自動產生",
-    start: { date: event.dates },
+    start: { date: startDate },
     end: { date: endDate.toISOString().split("T")[0] },
     ...(colorId && { colorId: colorId }),
   };
@@ -110,11 +120,3 @@ function addEventToGoogleCalendar(event) {
     resource: gEvent,
   });
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const exportBtn = document.getElementById("exportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", exportAllEvents);
-    console.log("導出按鈕監聽器已綁定");
-  }
-});
