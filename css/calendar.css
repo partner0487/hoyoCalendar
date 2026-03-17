@@ -6,6 +6,7 @@ body {
 #calendar {
   max-width: 1000px; /* ← 關鍵 */
   margin: 0 auto; /* 置中 */
+  margin-bottom: 20px;
 }
 /* 修改 calendar 的格線為黑色 */
 .fc .fc-scrollgrid,
