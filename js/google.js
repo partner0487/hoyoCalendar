@@ -1,38 +1,44 @@
-export {}; // 保留 module
-
+let tokenClient;
 const CLIENT_ID =
   "421221289192-qtf3spuf5bqgd8m4ss201kstc9vqtqf8.apps.googleusercontent.com";
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
 window.handleClientLoad = function () {
-  gapi.load("client:auth2", initClient);
-};
-
-function initClient() {
-  gapi.client
-    .init({
-      clientId: CLIENT_ID,
-      scope: SCOPES,
+  gapi.load("client", async () => {
+    // 初始化日曆 API
+    await gapi.client.init({
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
       ],
-    })
-    .then(() => console.log("Google API initialized"));
-}
+    });
+    console.log("GAPI client loaded");
+  });
+
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (response) => {
+      if (response.error !== undefined) {
+        throw response;
+      }
+      console.log("登入並獲取 Token 成功");
+    },
+  });
+};
 
 window.signIn = function () {
-  gapi.auth2
-    .getAuthInstance()
-    .signIn()
-    .then(() => console.log("登入成功"))
-    .catch((err) => console.error("登入失敗:", err));
+  if (gapi.client.getToken() === null) {
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    tokenClient.requestAccessToken({ prompt: "" });
+  }
 };
 
 function addEventToGoogleCalendar(event) {
   const gEvent = {
     summary: `${event.game} ${event.title}`,
-    start: { date: event.dates }, // 全日事件
-    end: { date: event.dates }, // 同一天會被視作一天結束，建議加一天：
+    start: { date: event.dates },
+    end: { date: event.dates },
   };
 
   gapi.client.calendar.events
@@ -40,21 +46,6 @@ function addEventToGoogleCalendar(event) {
       calendarId: "primary",
       resource: gEvent,
     })
-    .then(
-      (response) => {
-        console.log("事件已新增到 Google Calendar", response);
-      },
-      (err) => {
-        console.error("新增失敗", err);
-      },
-    );
+    .then((res) => console.log("新增成功", res))
+    .catch((err) => console.error("新增失敗", err));
 }
-
-// 全部導出
-function exportAllEvents(events) {
-  events.forEach((e) => addEventToGoogleCalendar(e));
-}
-
-document.getElementById("exportBtn").addEventListener("click", () => {
-  exportAllEvents(events); // events 來源：你的 localStorage 或 API
-});
