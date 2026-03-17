@@ -24,7 +24,8 @@ window.signIn = function () {
   gapi.auth2
     .getAuthInstance()
     .signIn()
-    .then(() => console.log("已登入 Google 帳號"));
+    .then(() => console.log("登入成功"))
+    .catch((err) => console.error("登入失敗:", err));
 };
 
 function addEventToGoogleCalendar(event) {
