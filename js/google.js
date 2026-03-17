@@ -1,7 +1,8 @@
 let tokenClient;
 const CLIENT_ID =
   "421221289192-qtf3spuf5bqgd8m4ss201kstc9vqtqf8.apps.googleusercontent.com";
-const SCOPES = "https://www.googleapis.com/auth/calendar.events";
+const SCOPES =
+  "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email";
 
 window.handleClientLoad = function () {
   gapi.load("client", async () => {
@@ -16,15 +17,20 @@ window.handleClientLoad = function () {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    callback: (response) => {
-      if (response.error !== undefined) {
-        console.error("登入失敗", response);
-        return;
-      }
-      console.log("登入並獲取 Token 成功");
+    callback: async (response) => {
+      if (response.error !== undefined) return;
+
+      gapi.client.setToken(response);
+
+      const userInfo = await fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: { Authorization: `Bearer ${response.access_token}` },
+        },
+      ).then((res) => res.json());
 
       const btn = document.getElementById("loginBtn");
-      btn.textContent = user.getBasicProfile().getEmail();
+      btn.textContent = userInfo.email;
       btn.disabled = true;
       btn.classList.add("active");
     },
