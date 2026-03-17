@@ -37,16 +37,44 @@ window.handleClientLoad = function () {
   });
 };
 
-// 使用新的 Token Client
 window.signIn = function () {
   tokenClient.requestAccessToken({ prompt: "consent" });
 };
 
+// 全部導出函式
+function exportAllEvents() {
+  // 檢查是否有登入（Token 是否存在）
+  if (!gapi.client.getToken()) {
+    alert("請先登入 Google 帳號！");
+    window.signIn();
+    return;
+  }
+
+  // 取得你的 events 資料（假設存放在 localStorage 或變數中）
+  // 這裡需要確保你的 'events' 變數是有資料的
+  const eventsToExport = JSON.parse(
+    localStorage.getItem("calendarEvents") || "[]",
+  );
+
+  if (eventsToExport.length === 0) {
+    alert("目前沒有任何事件可以導出。");
+    return;
+  }
+
+  eventsToExport.forEach((e) => addEventToGoogleCalendar(e));
+  alert("導出程序已開始，請查看 Console 紀錄。");
+}
+
 function addEventToGoogleCalendar(event) {
+  const startDate = new Date(event.dates);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 1);
+
   const gEvent = {
     summary: `${event.game} ${event.title}`,
-    start: { date: event.dates },
-    end: { date: event.dates },
+    description: "由 Hoyo-Calendar 自動產生",
+    start: { date: event.dates }, 
+    end: { date: endDate.toISOString().split("T")[0] }, 
   };
 
   gapi.client.calendar.events
@@ -54,6 +82,14 @@ function addEventToGoogleCalendar(event) {
       calendarId: "primary",
       resource: gEvent,
     })
-    .then((res) => console.log("新增成功", res))
-    .catch((err) => console.error("新增失敗", err));
+    .then((res) => console.log(`成功新增事件: ${event.title}`, res))
+    .catch((err) => console.error(`新增失敗: ${event.title}`, err));
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const exportBtn = document.getElementById("exportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", exportAllEvents);
+    console.log("導出按鈕監聽器已綁定");
+  }
+});
