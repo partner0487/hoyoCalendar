@@ -92,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
           text.textContent = e.title;
           text.style.fontSize = "0.75rem";
 
-          container.appendChild(img);
           container.appendChild(text);
           return { domNodes: [container] };
         },
