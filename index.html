@@ -40,9 +40,12 @@
       </video>
     </div>
     <div class="top-right-btns">
+      <!-- 
       <button onclick="signIn()" class="login-btn">登入 Google 帳號</button>
       <button id="exportBtn" class="output-btn">導出到 Google Calendar</button>
-
+      
+      開發中
+      -->
       <button id="updateBtn" class="update-btn">🔄 更新資料</button>
     </div>
     <h1>
@@ -90,6 +93,40 @@
       .fc-event-title {
         font-size: 0.75rem;
         white-space: normal; /* 允許換行 */
+      }
+    </style>
+    <footer id="site-footer">
+      <div class="footer-content">
+        <p>開發人員: 夥伴</p>
+        <p>
+          GitHub:
+          <a href="https://github.com/你的帳號" target="_blank"
+            >github.com/你的帳號</a
+          >
+        </p>
+        <p>
+          隱私權政策:
+          <a href="https://你的網站/隱私政策" target="_blank">查看政策</a>
+        </p>
+      </div>
+    </footer>
+
+    <style>
+      #site-footer {
+        background-color: #8b5e3c; /* 棕色 */
+        color: #fff; /* 白字 */
+        padding: 20px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      #site-footer a {
+        color: #ffddaa; /* 淡黃橘色連結 */
+        text-decoration: underline;
+      }
+
+      #site-footer a:hover {
+        color: #fff;
       }
     </style>
   </body>
