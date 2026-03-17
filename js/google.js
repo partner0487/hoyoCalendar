@@ -26,13 +26,25 @@ window.handleClientLoad = function () {
   });
 };
 
-window.signIn = function () {
-  if (gapi.client.getToken() === null) {
-    tokenClient.requestAccessToken({ prompt: "consent" });
-  } else {
-    tokenClient.requestAccessToken({ prompt: "" });
-  }
-};
+function signIn() {
+  gapi.auth2
+    .getAuthInstance()
+    .signIn()
+    .then(
+      (user) => {
+        console.log("已登入 Google 帳號", user.getBasicProfile().getEmail());
+
+        // 修改按鈕文字
+        const btn = document.getElementById("loginBtn");
+        btn.textContent = user.getBasicProfile().getEmail();
+        btn.disabled = true; // 如果想要禁止再次點擊
+      },
+      (err) => {
+        console.error("登入失敗", err);
+        alert("登入失敗，請重試");
+      },
+    );
+}
 
 function addEventToGoogleCalendar(event) {
   const gEvent = {
