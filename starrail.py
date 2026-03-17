@@ -50,7 +50,7 @@ def fetch_starrail():
                 "game": "鐵道",
                 "title": clean_title,
                 "dates": dt.strftime("%Y-%m-%d"),
-                "image": img_url   # ✔ 加這行
+                "image": img_url
             })
 
         # ===== 2. 副本 =====
@@ -65,7 +65,7 @@ def fetch_starrail():
                 "game": "鐵道",
                 "title": dungeon.strip(),
                 "dates": dt.strftime("%Y-%m-%d"),
-                "image": img_url   # ✔ 這裡也加
+                "image": None
             })
 
     return all_matches

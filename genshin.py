@@ -67,9 +67,7 @@ def fetch_genshin():
                         "game": "原神",
                         "title": clean_title if rule["title"] == "版本更新" else rule["title"],
                         "dates": dt.strftime("%Y-%m-%d"),
-
-                        # ✔ 加這行
-                        "image": img_url
+                        "image": img_url if rule["title"] == "版本更新" else None,
                     })
                 except:
                     continue
@@ -83,9 +81,7 @@ def fetch_genshin():
                     "game": "原神",
                     "title": "深境螺旋",
                     "dates": dt.strftime("%Y-%m-%d"),
-
-                    # ✔ 這裡也加
-                    "image": img_url
+                    "image": None
                 })
 
     return all_matches
