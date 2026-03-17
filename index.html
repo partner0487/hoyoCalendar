@@ -39,9 +39,12 @@
         您的瀏覽器不支援影片播放。
       </video>
     </div>
-    <button onclick="signIn()">登入 Google 帳號</button>
-    <button id="updateBtn" class="update-btn">🔄 更新資料</button>
-    <button id="exportBtn">導出到 Google Calendar</button>
+    <div class="top-right-btns">
+      <button onclick="signIn()" class="login-btn">登入 Google 帳號</button>
+      <button id="exportBtn" class="output-btn">導出到 Google Calendar</button>
+
+      <button id="updateBtn" class="update-btn">🔄 更新資料</button>
+    </div>
     <h1>
       <img
         src="/assets/logo_white_removebg.png"
@@ -53,6 +56,8 @@
     <script src="./js/loading.js" type="module"></script>
     <script src="./js/google.js" type="module"></script>
     <script src="https://apis.google.com/js/api.js"></script>
+    <style src="./css/btn.css" type="module"></style>
+
     <style>
       body {
         font-family: system-ui;
@@ -86,21 +91,6 @@
       .fc-event-title {
         font-size: 0.75rem;
         white-space: normal; /* 允許換行 */
-      }
-      .update-btn {
-        position: fixed;
-        top: 16px;
-        right: 16px;
-        padding: 8px 14px;
-        font-size: 14px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        background: #222;
-        color: white;
-      }
-      .update-btn:hover {
-        background: #444;
       }
     </style>
   </body>
