@@ -1,31 +1,31 @@
+export {}; // 保留 module
+
 const CLIENT_ID =
   "421221289192-qtf3spuf5bqgd8m4ss201kstc9vqtqf8.apps.googleusercontent.com";
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
-function handleClientLoad() {
+window.handleClientLoad = function () {
   gapi.load("client:auth2", initClient);
-}
+};
 
 function initClient() {
-  gapi.client.init({
-    clientId: CLIENT_ID,
-    scope: SCOPES,
-    discoveryDocs: [
-      "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-    ],
-  });
+  gapi.client
+    .init({
+      clientId: CLIENT_ID,
+      scope: SCOPES,
+      discoveryDocs: [
+        "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+      ],
+    })
+    .then(() => console.log("Google API initialized"));
 }
 
-function signIn() {
-  document.getElementById("googleSignInBtn").addEventListener("click", () => {
-    gapi.auth2
-      .getAuthInstance()
-      .signIn()
-      .then(() => {
-        console.log("已登入 Google 帳號");
-      });
-  });
-}
+window.signIn = function () {
+  gapi.auth2
+    .getAuthInstance()
+    .signIn()
+    .then(() => console.log("已登入 Google 帳號"));
+};
 
 function addEventToGoogleCalendar(event) {
   const gEvent = {
