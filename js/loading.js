@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initialView: "dayGridMonth",
     locale: "zh-tw",
     events: [],
-    eventMouseEnter: function (info) {
+    eventMouseEnter: function(info) {
       const img = info.event.extendedProps.image;
       if (!img) return;
 
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("mousemove", move);
       info.el._moveHandler = move;
     },
-    eventMouseLeave: function (info) {
+    eventMouseLeave: function(info) {
       const tooltip = document.getElementById("imgTooltip");
       if (tooltip) tooltip.remove();
       if (info.el._moveHandler) {
@@ -70,31 +70,10 @@ document.addEventListener("DOMContentLoaded", () => {
     calendar.removeAllEvents();
     events.forEach((e) => {
       calendar.addEvent({
+        title: `${e.game} ${e.title}`,
         start: e.dates,
         color: gameColors[e.game] || "#2196F3",
-        extendedProps: { image: e.image },
-        // 自訂事件內容
-        eventContent: function (arg) {
-          const container = document.createElement("div");
-          container.style.display = "flex";
-          container.style.alignItems = "center";
-          container.style.gap = "4px"; // 圖片跟文字間距
-
-          // 加遊戲小圖
-          const img = document.createElement("img");
-          img.src = `./assets/${e.game}.png`;
-          img.style.width = "16px";
-          img.style.height = "16px";
-          img.style.borderRadius = "2px";
-
-          // 加文字
-          const text = document.createElement("span");
-          text.textContent = e.title;
-          text.style.fontSize = "0.75rem";
-
-          container.appendChild(text);
-          return { domNodes: [container] };
-        },
+        extendedProps: { image: e.image }, // 存版本圖片
       });
     });
 
@@ -109,31 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const events = JSON.parse(saved);
     events.forEach((e) => {
       calendar.addEvent({
+        title: `${e.game} ${e.title}`,
         start: e.dates,
         color: gameColors[e.game] || "#2196F3",
         extendedProps: { image: e.image },
-        // 自訂事件內容
-        eventContent: function (arg) {
-          const container = document.createElement("div");
-          container.style.display = "flex";
-          container.style.alignItems = "center";
-          container.style.gap = "4px"; // 圖片跟文字間距
-
-          // 加遊戲小圖
-          const img = document.createElement("img");
-          img.src = `/assets/${e.game}.png`;
-          img.style.width = "16px";
-          img.style.height = "16px";
-          img.style.borderRadius = "2px";
-
-          // 加文字
-          const text = document.createElement("span");
-          text.textContent = e.title;
-          text.style.fontSize = "0.75rem";
-
-          container.appendChild(text);
-          return { domNodes: [container] };
-        },
       });
     });
   }
