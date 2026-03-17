@@ -153,6 +153,11 @@ async function deleteAllEvents() {
 
   const events = res.result.items || [];
 
+  const btn = document.getElementById("exportBtn");
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "導出中 (請勿關閉視窗)...";
+  
   console.log(`找到 ${events.length} 個事件準備刪除`);
 
   for (const e of events) {
