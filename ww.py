@@ -1,6 +1,6 @@
 import requests, re
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def fetch_ww():
     url_list = "https://media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/json/G152/zh/ArticleMenu.json"
@@ -19,6 +19,7 @@ def fetch_ww():
     for post in filtered:
         dates = None
         img_url = None
+        clean_title = post['articleTitle'].split('更')[0].split('》')[-1]
         
         url_detail = f"https://media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/json/G152/zh/article/{post['articleId']}.json"
         try:
@@ -40,12 +41,25 @@ def fetch_ww():
 
             results.append({
                 "game": "鳴潮",
-                "title": f"{post['articleTitle'].split('更')[0].split('》')[-1]}",
+                "title": clean_title,
                 "dates": dates,
                 "image": img_url
             })
         except Exception as e:
             print(f"Detail parsing error: {e}")
             continue
+        
+    if dt:
+            second_half_date = dt + timedelta(days=20)
+            
+            # 建立下半卡池的標題（例如原本是 "4.8版本更新"，變成 "4.8版本 下半卡池"）
+            second_half_title = clean_title.replace("更新", "").strip() + " 下半卡池"
+            
+            results.append({
+                "game": "原神",
+                "title": second_half_title,
+                "dates": second_half_date.strftime("%Y-%m-%d"),
+                "image": None
+            })  
     
     return results
