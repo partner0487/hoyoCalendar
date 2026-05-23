@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const exportBtn = document.getElementById("exportBtn");
-    const loginBtn = document.getElementById("loginBtn");
+    exportBtn.disabled = false;
 
     loadingScreen.style.display = "none";
     updateBtn.disabled = false;
