@@ -19,7 +19,7 @@ def fetch_ww():
     for post in filtered:
         dates = None
         img_url = None
-        clean_title = post['articleTitle'].split('更')[0].split('》')[-1]
+        clean_title = post['articleTitle'].split('更')[0].split('》')[-1] + " 更新"
         
         url_detail = f"https://media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/json/G152/zh/article/{post['articleId']}.json"
         try:
@@ -48,7 +48,7 @@ def fetch_ww():
             
             if dt:
                 second_half_date = dt + timedelta(days=21)
-                second_half_title = clean_title.replace("版本", "").strip() + " 下半卡池"
+                second_half_title = clean_title + " 下半卡池"
                 results.append({
                     "game": "鳴潮",
                     "title": second_half_title,

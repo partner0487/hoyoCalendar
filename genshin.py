@@ -65,7 +65,7 @@ def fetch_genshin():
                     
                     all_matches.append({
                         "game": "原神",
-                        "title": clean_title if rule["title"] == "版本更新" else rule["title"],
+                        "title": clean_title if rule["title"] + " 下半池" == "更新" else rule["title"],
                         "dates": dt.strftime("%Y-%m-%d"),
                         "image": img_url if rule["title"] == "版本更新" else None,
                     })
@@ -74,7 +74,7 @@ def fetch_genshin():
         
         if version_date:
             second_half_date = version_date + timedelta(days=20)
-            second_half_title = clean_title.replace("更新", "").strip() + " 下半卡池"
+            second_half_title = clean_title + " 下半池"
             all_matches.append({
                 "game": "原神",
                 "title": second_half_title,
