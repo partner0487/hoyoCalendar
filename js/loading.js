@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const exportBtn = document.getElementById("exportBtn");
     const loginBtn = document.getElementById("loginBtn");
-    if (loginBtn.textContent = "登入 Google 帳號") exportBtn.disabled = true; 
+    if (loginBtn.textContent == "登入 Google 帳號") exportBtn.disabled = true; 
     else exportBtn.disabled = false;
 
     loadingScreen.style.display = "none";
