@@ -2,6 +2,8 @@ import json
 from genshin import fetch_genshin
 from starrail import fetch_starrail
 from ww import fetch_ww
+from nte import fetch_nte
+
 
 def fetch_all():
     results = []
@@ -9,6 +11,7 @@ def fetch_all():
     results.extend(fetch_genshin())
     results.extend(fetch_starrail())
     results.extend(fetch_ww())
+    results.extend(fetch_nte())
 
     return results
 

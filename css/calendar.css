@@ -1,7 +1,19 @@
+/* ─── 💡 核心修正：徹底防禦網頁往右滑與 X 軸溢出 ─── */
+html,
 body {
-  font-family: system-ui;
+  max-width: 100%;
+  overflow-x: hidden;
+  /* ❌ 徹底禁用水平滾動條 */
   background-color: #e0dfd6;
+  font-family: system-ui;
   margin: 5px;
+  padding: 0;
+}
+
+/* 確保你的序幕遮罩不會因為 X 軸被卡出邊界 */
+#initOverlay {
+  max-width: 100vw;
+  overflow: hidden;
 }
 #calendar {
   max-width: 1000px; /* ← 關鍵 */
@@ -31,4 +43,24 @@ body {
 .fc-event-title {
   font-size: 0.75rem;
   white-space: normal; /* 允許換行 */
+}
+
+/* 初始載入文字的呼吸燈效果 */
+.init-loading-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #7a7872;
+  letter-spacing: 2px;
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
 }

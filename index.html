@@ -1,84 +1,143 @@
 <!doctype html>
 <html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/assets/logo_black_removebg.png" />
-    <title>二遊更新日曆</title>
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-  </head>
+  <link rel="icon" href="/assets/logo_black_removebg.png" />
+  <title>二遊更新日曆</title>
 
-  <body onload="handleClientLoad()">
-    <div
-      id="loadingScreen"
-      style="
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet"
+    crossorigin="anonymous" />
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="initOverlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #e0dfd6; /* 與你網頁一致的米黃色 */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999; /* 確保在最上層 */
+        transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+      ">
+    <h2 class="init-loading-text">
+      二遊更新日曆 正在載入...
+    </h2>
+  </div>
+  <div id="loadingScreen" style="
         background-color: #e0dfd6;
         position: fixed;
         bottom: 20px;
         right: 0px;
         display: none;
         z-index: 9999;
-      "
-    >
-      <h1 style="display: flex; justify-content: center; align-items: center">
-        更新資料中 請稍後
-      </h1>
-      <video
-        id="loadingVideo"
-        src="/loading/loading1.mp4"
-        autoplay
-        muted
-        loop
-        style="max-width: 400px; border-radius: 5px"
-      >
-        您的瀏覽器不支援影片播放。
-      </video>
-    </div>
-    <div class="top-right-btns">
-      <button id="loginBtn" onclick="signIn()" class="login-btn">登入 Google 帳號</button>
-      <button id="exportBtn" class="output-btn" disabled>導出到 Google 日曆</button>
-      <button id="updateBtn" class="update-btn">更新資料</button>
-    </div>
-    <h1>
-      <img
-        src="/assets/logo_white_removebg.png"
-        style="height: 50px; vertical-align: middle"
-      />
-      二遊更新日曆 (目前支援原/鐵/鳴)
+      ">
+    <h1 style="display: flex; justify-content: center; align-items: center">
+      更新資料中 請稍後
     </h1>
-    <div id="calendar"></div>
+    <video id="loadingVideo" src="/loading/loading1.mp4" autoplay muted loop
+      style="max-width: 400px; border-radius: 5px">
+      您的瀏覽器不支援影片播放。
+    </video>
+  </div>
 
-    <footer id="site-footer">
-      <div class="footer-content">
-        <p>開發人員: 夥伴</p>
-        <p>
-          GitHub:
-          <a href="https://github.com/partner0487/hoyoCalendar" target="_blank"
-            >github</a
-          >
-        </p>
-        <p>
-          隱私權政策:
-          <a
-            href="https://hoyo-calendar.vercel.app/Privacy.html"
-            target="_blank"
-            >查看政策</a
-          >
-        </p>
-      </div>
-    </footer>
+  <div class="top-right-btns">
+    <button id="loginBtn" class="login-btn">
+      <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      <span id="loginText" class="login-text">登入 Google 帳號</span>
+    </button>
+    
+    <button id="exportBtn" class="output-btn" disabled>
+      <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9m0-9-3 3m3-3 3 3"/>
+      </svg>
+      <span class="export-text">導出到 Google 日曆</span>
+    </button>
+    
+    <button id="updateBtn" class="update-btn">
+      <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+      <span>更新資料</span>
+    </button>
+  </div>
 
-    <script src="./js/loading.js" type="module"></script>
-    <script src="./js/google.js" type="module"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
-    <link rel="stylesheet" href="./css/btn.css" />
-    <link rel="stylesheet" href="./css/calendar.css" />
-    <link rel="stylesheet" href="./css/footer.css" />
-  </body>
+  <h1>
+    <img src="/assets/logo_white_removebg.png" style="height: 50px; vertical-align: middle" alt="Logo" />
+    二遊更新日曆
+
+    <div id="gameFilter" style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+      <label class="game-cb-label">
+        <input type="checkbox" value="原神" checked>
+        <div class="game-card genshin-active">
+          <img src="/assets/genshin.png" class="game-avatar" alt="原神" />
+          <span>原神</span>
+        </div>
+      </label>
+
+      <label class="game-cb-label">
+        <input type="checkbox" value="鐵道" checked>
+        <div class="game-card starrail-active">
+          <img src="/assets/starrail.png" class="game-avatar" alt="鐵道" />
+          <span>鐵道</span>
+        </div>
+      </label>
+
+      <label class="game-cb-label">
+        <input type="checkbox" value="鳴潮" checked>
+        <div class="game-card wuwa-active">
+          <img src="/assets/wuwa.png" class="game-avatar" alt="鳴潮" />
+          <span>鳴潮</span>
+        </div>
+      </label>
+
+      <label class="game-cb-label">
+        <input type="checkbox" value="異環" checked>
+        <div class="game-card nte-active">
+          <img src="/assets/nte.jpg" class="game-avatar" alt="異環" />
+          <span>異環</span>
+        </div>
+      </label>
+    </div>
+  </h1>
+
+  <div id="calendar"></div>
+
+  <footer id="site-footer">
+    <div class="footer-content">
+      <p>開發人員: 夥伴</p>
+      <p>
+        GitHub:
+        <a href="https://github.com/partner0487/hoyoCalendar" target="_blank" rel="noopener noreferrer">github</a>
+      </p>
+      <p>
+        隱私權政策:
+        <a href="https://hoyo-calendar.vercel.app/Privacy.html" target="_blank" rel="noopener noreferrer">查看政策</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="./js/loading.js" type="module"></script>
+  <script src="./js/google.js" type="module"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <link rel="stylesheet" href="./css/btn.css" />
+  <link rel="stylesheet" href="./css/calendar.css" />
+  <link rel="stylesheet" href="./css/footer.css" />
+  <link rel="stylesheet" href="./css/check.css" />
+
+</body>
+
 </html>

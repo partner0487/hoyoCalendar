@@ -31,7 +31,7 @@ def fetch_genshin():
             "fmt": "%Y/%m/%d"
         },
         {
-            "title": "幻想真境劇詩", 
+            "title": "幻想真境劇詩 更新", 
             "regex": r"幻想真境劇詩將於(\d{4}年\d{1,2}月\d{1,2}日)", 
             "fmt": "%Y年%m月%d日"
         }
@@ -89,7 +89,7 @@ def fetch_genshin():
                 dt = datetime(year=version_date.year, month=int(month), day=int(day))
                 all_matches.append({
                     "game": "原神",
-                    "title": "深境螺旋",
+                    "title": "深境螺旋 更新",
                     "dates": dt.strftime("%Y-%m-%d"),
                     "image": None
                 })

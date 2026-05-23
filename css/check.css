@@ -1,0 +1,102 @@
+.game-cb-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.game-cb-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* 3. 自訂的遊戲卡片樣式（預設未選取狀態） */
+.game-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 2px solid #dcdad2;
+    /* 配合米黃色背景的淡灰框 */
+    border-radius: 30px;
+    /* 圓角膠囊感 */
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* 4. 遊戲頭像微調 */
+.game-avatar {
+    height: 32px !important;
+    /* 縮小一點點顯得精緻 */
+    width: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: grayscale(80%);
+    /* 未選取時稍微灰階 */
+    transition: all 0.25s ease;
+}
+
+.game-card span {
+    font-weight: bold;
+    font-size: 15px;
+    color: #7a7872;
+    transition: all 0.25s ease;
+}
+
+/* 5. 滑鼠懸浮時的微亮效果 */
+.game-card:hover {
+    transform: translateY(-2px);
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* 【原神】選取狀態：草綠色 */
+.game-cb-label input:checked+.genshin-active {
+    border-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.game-cb-label input:checked+.genshin-active span {
+    color: #4CAF50;
+}
+
+/* 【鐵道】選取狀態：星空藍 */
+.game-cb-label input:checked+.starrail-active {
+    border-color: #3F51B5;
+    background-color: rgba(63, 81, 181, 0.1);
+    box-shadow: 0 0 8px rgba(63, 81, 181, 0.3);
+}
+
+.game-cb-label input:checked+.starrail-active span {
+    color: #3F51B5;
+}
+
+/* 【鳴潮】選取狀態：聲骸粉紅 */
+.game-cb-label input:checked+.wuwa-active {
+    border-color: #E91E63;
+    background-color: rgba(233, 30, 99, 0.1);
+    box-shadow: 0 0 8px rgba(233, 30, 99, 0.3);
+}
+
+.game-cb-label input:checked+.wuwa-active span {
+    color: #E91E63;
+}
+
+/* 【異環】選取狀態：都市霓虹紫 */
+.game-cb-label input:checked+.nte-active {
+    border-color: #7B1FA2;
+    background-color: rgba(123, 31, 162, 0.1);
+    box-shadow: 0 0 8px rgba(123, 31, 162, 0.3);
+}
+
+.game-cb-label input:checked+.nte-active span {
+    color: #7B1FA2;
+}
+
+/* 選取時頭像恢復彩色 */
+.game-cb-label input:checked+.game-card .game-avatar {
+    filter: grayscale(0%);
+    transform: scale(1.05);
+}
