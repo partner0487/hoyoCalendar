@@ -1,7 +1,7 @@
 import requests
 import re
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
 def fetch_starrail():
@@ -51,6 +51,13 @@ def fetch_starrail():
                 "title": clean_title,
                 "dates": dt.strftime("%Y-%m-%d"),
                 "image": img_url
+            })
+            second_half_date = dt + timedelta(days=20)
+            all_matches.append({
+                "game": "鐵道",
+                "title": clean_title.replace("更新", "").strip() + " 下半池",
+                "dates": second_half_date.strftime("%Y-%m-%d"),
+                "image": None
             })
 
         # ===== 2. 副本 =====
