@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingScreen = document.getElementById("loadingScreen");
   const updateBtn = document.getElementById("updateBtn");
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
+  const calendar = new calendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "zh-tw",
     events: [],
@@ -78,7 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const exportBtn = document.getElementById("exportBtn");
-    exportBtn.disabled = false;
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn.textContent = "登入 Google 帳號") exportBtn.disabled = true; 
+    else exportBtn.disabled = false;
 
     loadingScreen.style.display = "none";
     updateBtn.disabled = false;
