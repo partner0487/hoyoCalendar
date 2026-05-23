@@ -65,7 +65,7 @@ def fetch_genshin():
                     
                     all_matches.append({
                         "game": "原神",
-                        "title": clean_title if rule["title"] + " 下半池" == "更新" else rule["title"],
+                        "title": clean_title + " 更新" if rule["title"] == "更新" else rule["title"],
                         "dates": dt.strftime("%Y-%m-%d"),
                         "image": img_url if rule["title"] == "版本更新" else None,
                     })

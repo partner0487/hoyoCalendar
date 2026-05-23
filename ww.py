@@ -19,7 +19,7 @@ def fetch_ww():
     for post in filtered:
         dates = None
         img_url = None
-        clean_title = post['articleTitle'].split('更')[0].split('》')[-1] + " 更新"
+        clean_title = post['articleTitle'].split('更')[0].split('》')[-1]
         
         url_detail = f"https://media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/json/G152/zh/article/{post['articleId']}.json"
         try:
@@ -41,7 +41,7 @@ def fetch_ww():
 
             results.append({
                 "game": "鳴潮",
-                "title": clean_title,
+                "title": clean_title + " 更新",
                 "dates": dates,
                 "image": img_url
             })
