@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingScreen = document.getElementById("loadingScreen");
   const updateBtn = document.getElementById("updateBtn");
 
-  const calendar = new calendar.Calendar(calendarEl, {
+  const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "zh-tw",
     events: [],

@@ -193,14 +193,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function switchToDeleteMode() {
   const btn = document.getElementById("exportBtn");
-  btn.textContent = "🗑️ 刪除所有事件";
+  btn.textContent = "刪除 Google 日曆所有事件";
   btn.classList.add("delete-mode");
   isExported = true;
 }
 
 function switchToExportMode() {
   const btn = document.getElementById("exportBtn");
-  btn.textContent = "📤 導出到 Google 日曆";
+  btn.textContent = "導出到 Google 日曆";
   btn.classList.remove("delete-mode");
   isExported = false;
 }
