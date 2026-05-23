@@ -1,7 +1,7 @@
 import requests
 import re
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
 def fetch_genshin():
@@ -71,6 +71,19 @@ def fetch_genshin():
                     })
                 except:
                     continue
+        
+        if version_date:
+            second_half_date = version_date + timedelta(days=20)
+            
+            # 建立下半卡池的標題（例如原本是 "4.8版本更新"，變成 "4.8版本 下半卡池"）
+            second_half_title = clean_title.replace("更新", "").strip() + " 下半卡池"
+            
+            all_matches.append({
+                "game": "原神",
+                "title": second_half_title,
+                "dates": second_half_date.strftime("%Y-%m-%d"),
+                "image": None
+            })  
 
         # 2. 深境螺旋
         spiral_matches = re.findall(r"深境螺旋將於(\d{1,2})月(\d{1,2})日更新", content_text)
