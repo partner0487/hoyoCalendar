@@ -3,8 +3,10 @@ import re
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 MAX_PAGES = 3  # 每頁約 4 則新聞，3 頁約涵蓋半年的角色卡池
+DETAIL_WORKERS = 4  # 同時抓詳細頁圖片的數量，不要開太多以免被官網擋
 
 def get_nte_orbital_events():
     # 1. 最初的起點
@@ -98,21 +100,18 @@ def parse_single_page(soup, headers):
                 else:
                     clean_title = f"新角色「{char_name}」卡池"
 
-                # ─── 💡 點進詳細頁面抓取第一張大圖 ───
-                img_url = None
+                # 先記下詳細頁網址，圖片之後在 fetch_nte 裡一次同時抓
+                detail_url = None
                 a_tag = element.find("a", class_="latestnews-titleurl")
                 if a_tag and a_tag.get("href"):
                     detail_url = "https://nte.iwplay.com.tw" + a_tag["href"]
-                    print(f"  🔍 正在獲取圖片: {clean_title}...")
-                    img_url = fetch_detail_image(detail_url, headers)
-                    time.sleep(0.1)  # 避免頻繁請求
-                # ───────────────────────────────────
 
                 results.append({
                     "game": "異環",
                     "title": clean_title,
                     "dates": dt.strftime("%Y-%m-%d"),
-                    "image": img_url
+                    "image": None,
+                    "_detail_url": detail_url
                 })
 
             except Exception as ex:
@@ -176,6 +175,15 @@ def fetch_nte():
 
     except Exception as e:
         print(f"Fetch NTE total pages failed: {e}")
+
+    # 同時進每則角色新聞的詳細頁抓大圖（依序抓會一則等一則）
+    def fill_image(event):
+        detail_url = event.pop("_detail_url", None)
+        if detail_url:
+            event["image"] = fetch_detail_image(detail_url, headers)
+
+    with ThreadPoolExecutor(max_workers=DETAIL_WORKERS) as pool:
+        list(pool.map(fill_image, all_crawled_events))
 
     # 獲取軌外之境副本更新日期
     orbital_events = get_nte_orbital_events()
