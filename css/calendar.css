@@ -45,6 +45,85 @@ body {
   white-space: normal; /* 允許換行 */
 }
 
+/* 有圖片的事件可以點開看大圖 */
+.fc-event.has-image {
+  cursor: pointer;
+}
+
+/* 點擊事件後的大圖視窗 */
+#imgModal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.img-modal-box {
+  max-width: min(800px, 100%);
+  text-align: center;
+}
+
+.img-modal-box img {
+  max-width: 100%;
+  max-height: 75vh;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.img-modal-box p {
+  margin: 12px 0 0;
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* ─── 手機版排版（日曆本身在 JS 裡切換成清單模式） ─── */
+@media (max-width: 600px) {
+  /* 右上角按鈕改成放在頁首、可換行，不再浮在標題上 */
+  .top-right-btns {
+    position: static;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .login-btn,
+  .output-btn,
+  .update-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  /* 四個遊戲篩選換行排列 */
+  #gameFilter {
+    flex-wrap: wrap;
+    gap: 8px !important;
+    margin-top: 8px;
+  }
+
+  .game-card {
+    padding: 4px 10px;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1.2rem;
+  }
+
+  #site-footer {
+    box-sizing: border-box;
+  }
+}
+
 /* 初始載入文字的呼吸燈效果 */
 .init-loading-text {
   font-size: 24px;

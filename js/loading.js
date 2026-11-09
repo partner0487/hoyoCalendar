@@ -32,13 +32,29 @@ document.addEventListener("DOMContentLoaded", () => {
     cb.checked = selectedGames.has(cb.value);
   });
 
+  // 窄螢幕（手機）用清單模式，月曆格子太小放不下標題
+  const narrowScreen = window.matchMedia("(max-width: 600px)");
+  // 只有滑鼠這類能 hover 的裝置才顯示跟隨游標的預覽圖；手機點一下會觸發 mouseenter 卻不會 mouseleave
+  const canHover = window.matchMedia("(hover: hover)");
+  const viewForScreen = () => (narrowScreen.matches ? "listMonth" : "dayGridMonth");
+  const heightForScreen = () => (narrowScreen.matches ? "auto" : undefined);
+
   const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
+    initialView: viewForScreen(),
     locale: "zh-tw",
+    noEventsText: "這個月沒有活動",
+    // 手機清單模式依內容長高，避免日曆內部出現小捲軸；桌面月曆維持預設比例
+    height: heightForScreen(),
     events: [],
-    eventMouseEnter: function (info) {
+    eventClick: function (info) {
       const imgUrl = info.event.extendedProps.image;
       if (!imgUrl) return;
+      removeTooltip(info.el);
+      showImageModal(info.event.title, imgUrl);
+    },
+    eventMouseEnter: function (info) {
+      const imgUrl = info.event.extendedProps.image;
+      if (!imgUrl || !canHover.matches) return;
 
       // 1. 建立 Tooltip 容器
       const tooltip = document.createElement("div");
@@ -80,17 +96,56 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     eventMouseLeave: function (info) {
-      const tooltip = document.getElementById("imgTooltip");
-      if (tooltip) tooltip.remove();
-
-      if (info.el._moveHandler) {
-        document.removeEventListener("mousemove", info.el._moveHandler);
-        delete info.el._moveHandler; // 清理物件屬性
-      }
+      removeTooltip(info.el);
     },
   });
 
   calendar.render();
+
+  narrowScreen.addEventListener("change", () => {
+    calendar.setOption("height", heightForScreen());
+    calendar.changeView(viewForScreen());
+  });
+
+  function removeTooltip(el) {
+    const tooltip = document.getElementById("imgTooltip");
+    if (tooltip) tooltip.remove();
+
+    if (el._moveHandler) {
+      document.removeEventListener("mousemove", el._moveHandler);
+      delete el._moveHandler; // 清理物件屬性
+    }
+  }
+
+  // 點擊事件時顯示大圖（手機沒有 hover，只能靠點擊看圖）
+  function showImageModal(title, imgUrl) {
+    const modal = document.createElement("div");
+    modal.id = "imgModal";
+
+    const box = document.createElement("div");
+    box.className = "img-modal-box";
+
+    const img = document.createElement("img");
+    img.src = imgUrl;
+    img.alt = title;
+
+    const caption = document.createElement("p");
+    caption.textContent = title; // 用 textContent，標題不會被當成 HTML
+
+    box.append(img, caption);
+    modal.appendChild(box);
+    document.body.appendChild(modal);
+
+    const close = () => {
+      modal.remove();
+      document.removeEventListener("keydown", onKey);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+    modal.addEventListener("click", close);
+    document.addEventListener("keydown", onKey);
+  }
 
   function renderEvents(events) {
     calendar.removeAllEvents();
@@ -102,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
           title: `${e.game} ${e.title}`,
           start: e.dates,
           color: gameColors[e.game] || "#2196F3",
+          classNames: e.image ? ["has-image"] : [],
           extendedProps: {
             image: e.image,
           },

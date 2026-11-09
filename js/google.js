@@ -17,6 +17,28 @@ const SCOPES = "https://www.googleapis.com/auth/calendar.events https://www.goog
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// 每個請求之間的間隔；真的太快被 Google 限流時由 withRetry 退避重試
+const REQUEST_GAP_MS = 100;
+
+function isRateLimited(err) {
+  const status = err && (err.status || (err.result && err.result.error && err.result.error.code));
+  const reason = err && err.result && err.result.error && err.result.error.errors
+    && err.result.error.errors[0] && err.result.error.errors[0].reason;
+  return status === 429 || (status === 403 && /rateLimitExceeded/i.test(reason || ""));
+}
+
+// 遇到 Google 頻率限制時等 1、2、4 秒後重試，其他錯誤直接丟出
+async function withRetry(fn, retries = 3) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt >= retries || !isRateLimited(err)) throw err;
+      await sleep(1000 * 2 ** attempt);
+    }
+  }
+}
+
 // 初始化 Google APIs
 window.handleClientLoad = function () {
   gapi.load("client", async () => {
@@ -126,7 +148,8 @@ async function exportAllEvents() {
   let successCount = 0;
 
   try {
-    for (const e of eventsToExport) {
+    for (const [i, e] of eventsToExport.entries()) {
+      setExportLabel(`導出中 ${i + 1}/${eventsToExport.length} (請勿關閉視窗)...`);
       try {
         await addEventToGoogleCalendar(e);
         console.log(`✅ 成功導出: [${e.game}] ${e.title}`);
@@ -134,7 +157,7 @@ async function exportAllEvents() {
       } catch (err) {
         console.error(`❌ 導出失敗: ${e.title}`, err);
       }
-      await sleep(500); 
+      await sleep(REQUEST_GAP_MS);
     }
 
     alert(`導出程序已完成！成功匯出 ${successCount}/${eventsToExport.length} 個事件。`);
@@ -175,17 +198,18 @@ async function deleteAllEvents() {
       return true;
     }
 
-    for (const e of events) {
+    for (const [i, e] of events.entries()) {
+      setExportLabel(`刪除中 ${i + 1}/${events.length} (請勿關閉視窗)...`);
       try {
-        await gapi.client.calendar.events.delete({
+        await withRetry(() => gapi.client.calendar.events.delete({
           calendarId: "primary",
           eventId: e.id,
-        });
+        }));
         console.log(`🗑️ 已刪除: ${e.summary}`);
       } catch (err) {
         console.error("刪除失敗", err);
       }
-      await sleep(300); 
+      await sleep(REQUEST_GAP_MS);
     }
 
     alert("所有相關事件已從 Google 日曆刪除！");
@@ -213,13 +237,13 @@ async function addEventToGoogleCalendar(event) {
 
   const colorId = gameToColorId[event.game];
 
-  const listRes = await gapi.client.calendar.events.list({
+  const listRes = await withRetry(() => gapi.client.calendar.events.list({
     calendarId: "primary",
     timeMin: new Date(startDate).toISOString(),
     timeMax: new Date(endDate).toISOString(),
     singleEvents: true,
-    q: `${event.game} ${event.title}`, 
-  });
+    q: `${event.game} ${event.title}`,
+  }));
 
   const resourceData = {
     summary: `${event.game} ${event.title}`,
@@ -231,16 +255,16 @@ async function addEventToGoogleCalendar(event) {
 
   if (listRes.result.items && listRes.result.items.length > 0) {
     const existingEvent = listRes.result.items[0];
-    return gapi.client.calendar.events.update({
+    return withRetry(() => gapi.client.calendar.events.update({
       calendarId: "primary",
       eventId: existingEvent.id,
       resource: resourceData,
-    });
+    }));
   } else {
-    return gapi.client.calendar.events.insert({
+    return withRetry(() => gapi.client.calendar.events.insert({
       calendarId: "primary",
       resource: resourceData,
-    });
+    }));
   }
 }
 
