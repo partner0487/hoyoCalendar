@@ -42,17 +42,27 @@ def fetch_starrail():
             post["sContent"], "html.parser"
         ).get_text(separator="\n")
 
-        # ===== 1. 版本更新 =====
-        matches = re.findall(r"■更新時間\s*(\d{4}/\d{2}/\d{2})", content_text)
-        for d in matches:
-            dt = datetime.strptime(d, "%Y/%m/%d")
+                # ===== 1. 版本更新 =====
+        version_matches = re.findall(
+            r"■更新時間\s*(\d{4}/\d{2}/\d{2})",
+            content_text
+        )
+
+        version_date = None
+
+        for d in version_matches:
+            version_date = datetime.strptime(d, "%Y/%m/%d")
+
             all_matches.append({
                 "game": "鐵道",
                 "title": clean_title,
-                "dates": dt.strftime("%Y-%m-%d"),
+                "dates": version_date.strftime("%Y-%m-%d"),
                 "image": img_url
             })
-            second_half_date = dt + timedelta(days=20)
+
+            # 下半池
+            second_half_date = version_date + timedelta(days=20)
+
             all_matches.append({
                 "game": "鐵道",
                 "title": clean_title.replace("更新", "").strip() + " 下半池",
@@ -60,14 +70,42 @@ def fetch_starrail():
                 "image": None
             })
 
-        # ===== 2. 副本 =====
+        # ===== 2. 版本更新後立即開啟的副本 =====
+        version_after_matches = re.findall(
+            r"「([^」]+)」\s*將於\s*\d+(?:\.\d+)?版本更新後開啟",
+            content_text
+        )
+
+        handled_dungeons = set()
+
+        if version_date:
+            for dungeon in version_after_matches:
+                handled_dungeons.add(dungeon)
+
+                all_matches.append({
+                    "game": "鐵道",
+                    "title": dungeon.strip(),
+                    "dates": version_date.strftime("%Y-%m-%d"),
+                    "image": None
+                })
+
+        # ===== 3. 其他副本日期 =====
         dungeon_matches = re.findall(
-            r"(虛構敘事[•·][^ \n]+|混沌回憶[•·][^ \n]+|末日幻影[•·][^ \n]+)[\s\S]*?(\d{4}/\d{2}/\d{2})",
+            r"(虛構敘事[•·][^\s\n]+|"
+            r"混沌回憶[•·][^\s\n]+|"
+            r"末日幻影[•·][^\s\n]+)"
+            r"[\s\S]*?(\d{4}/\d{2}/\d{2})",
             content_text
         )
 
         for dungeon, d in dungeon_matches:
+
+            # 避免已經使用版本更新日期的副本再次被加入
+            if dungeon.strip() in handled_dungeons:
+                continue
+
             dt = datetime.strptime(d, "%Y/%m/%d")
+
             all_matches.append({
                 "game": "鐵道",
                 "title": dungeon.strip(),
