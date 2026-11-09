@@ -1,3 +1,5 @@
+import { busy, refreshUpdateBtn } from "./busy.js";
+
 let tokenClient;
 let isExported = false; // 是否已導出
 
@@ -147,6 +149,10 @@ async function exportAllEvents() {
   console.log(`準備導出 ${eventsToExport.length} 個事件... (已排除未勾選遊戲)`);
   let successCount = 0;
 
+  // 導出途中更新資料會改掉要導出的清單，先停用更新按鈕
+  busy.exporting = true;
+  refreshUpdateBtn();
+
   try {
     for (const [i, e] of eventsToExport.entries()) {
       setExportLabel(`導出中 ${i + 1}/${eventsToExport.length} (請勿關閉視窗)...`);
@@ -166,6 +172,8 @@ async function exportAllEvents() {
     alert("導出時發生錯誤，請查看主控台。");
     return false;
   } finally {
+    busy.exporting = false;
+    refreshUpdateBtn(); // 資料還在載入的話仍維持停用
     updateExportBtnUI();
   }
 }
@@ -183,6 +191,9 @@ async function deleteAllEvents() {
     exportBtn.disabled = true;
     setExportLabel("刪除中 (請勿關閉視窗)...");
   }
+
+  busy.exporting = true;
+  refreshUpdateBtn();
 
   try {
     const res = await gapi.client.calendar.events.list({
@@ -219,6 +230,8 @@ async function deleteAllEvents() {
     alert("刪除時發生錯誤，請查看主控台。");
     return false;
   } finally {
+    busy.exporting = false;
+    refreshUpdateBtn(); // 資料還在載入的話仍維持停用
     updateExportBtnUI();
   }
 }

@@ -1,3 +1,5 @@
+import { busy, refreshUpdateBtn } from "./busy.js";
+
 const gameColors = {
   原神: "#4CAF50",
   鐵道: "#3F51B5",
@@ -170,7 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadCalendarData(url) {
     loadingScreen.style.display = "inline-block";
-    updateBtn.disabled = true;
+    busy.loading = true;
+    refreshUpdateBtn();
+    updateBtn.classList.add("is-loading");
     updateText.textContent = "更新中...";
 
     let events = [];
@@ -189,7 +193,9 @@ document.addEventListener("DOMContentLoaded", () => {
       events = loadCachedEvents();
     } finally {
       loadingScreen.style.display = "none";
-      updateBtn.disabled = false;
+      busy.loading = false;
+      refreshUpdateBtn(); // 導出中的話仍維持停用
+      updateBtn.classList.remove("is-loading");
       updateText.textContent = "更新資料";
     }
 

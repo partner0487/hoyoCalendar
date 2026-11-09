@@ -105,8 +105,14 @@
   background-color: rgba(21, 101, 192, 1);
 }
 
-/* 💡 更新時讓 SVG 產生平滑的無限旋轉動畫 */
-.update-btn:disabled .btn-svg {
+/* 導出中停用時的樣式 */
+.update-btn:disabled:not(.is-loading) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 💡 更新時讓 SVG 產生平滑的無限旋轉動畫（導出中只是停用，不旋轉） */
+.update-btn.is-loading .btn-svg {
   animation: spin 1s linear infinite;
 }
 
