@@ -28,7 +28,7 @@ def fetch_starrail():
         if "版本更新說明" not in raw_title:
             continue
 
-        # ✔ 抓圖片（重點）
+        # ✔ 抓圖片
         img_url = None
         try:
             ext = json.loads(post.get("sExt", "{}"))
@@ -42,7 +42,7 @@ def fetch_starrail():
             post["sContent"], "html.parser"
         ).get_text(separator="\n")
 
-                # ===== 1. 版本更新 =====
+        # ===== 1. 版本更新與下半池 =====
         version_matches = re.findall(
             r"■更新時間\s*(\d{4}/\d{2}/\d{2})",
             content_text
@@ -70,26 +70,9 @@ def fetch_starrail():
                 "image": None
             })
 
-        # ===== 2. 版本更新後立即開啟的副本 =====
-        version_after_matches = re.findall(
-            r"「([^」]+)」\s*將於\s*\d+(?:\.\d+)?版本更新後開啟",
-            content_text
-        )
+        # ❌ (已移除會抓到前言雜訊的 Part 2)
 
-        handled_dungeons = set()
-
-        if version_date:
-            for dungeon in version_after_matches:
-                handled_dungeons.add(dungeon)
-
-                all_matches.append({
-                    "game": "鐵道",
-                    "title": dungeon.strip(),
-                    "dates": version_date.strftime("%Y-%m-%d"),
-                    "image": None
-                })
-
-        # ===== 3. 其他副本日期 =====
+        # ===== 2. 副本日期（直接抓取帶有明確日期的副本段落） =====
         dungeon_matches = re.findall(
             r"(虛構敘事[•·][^\s\n]+|"
             r"混沌回憶[•·][^\s\n]+|"
@@ -98,17 +81,21 @@ def fetch_starrail():
             content_text
         )
 
-        for dungeon, d in dungeon_matches:
+        handled_dungeons = set()
 
-            # 避免已經使用版本更新日期的副本再次被加入
-            if dungeon.strip() in handled_dungeons:
+        for dungeon, d in dungeon_matches:
+            clean_dungeon_name = dungeon.strip()
+
+            # 避免重複加入
+            if clean_dungeon_name in handled_dungeons:
                 continue
+            handled_dungeons.add(clean_dungeon_name)
 
             dt = datetime.strptime(d, "%Y/%m/%d")
 
             all_matches.append({
                 "game": "鐵道",
-                "title": dungeon.strip(),
+                "title": clean_dungeon_name,  # ✔ 這裡現在只會抓到乾淨、後面沒有贅字的名稱
                 "dates": dt.strftime("%Y-%m-%d"),
                 "image": None
             })
