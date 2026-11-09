@@ -1,2 +1,16 @@
 __pycache__/
 *.pyc
+
+# 環境變數與機密（Vercel CLI 會產生 .env.local）
+.env
+.env.*
+
+# Vercel CLI 本機設定
+.vercel/
+
+# Python 虛擬環境
+venv/
+.venv/
+
+# 編輯器設定
+.vscode/
