@@ -6,6 +6,12 @@ function getExportBtn() {
   return document.getElementById("exportBtn");
 }
 
+// 只改按鈕裡的文字 span；直接改按鈕 textContent 會把 SVG 圖示一起清掉
+function setExportLabel(text) {
+  const label = document.querySelector("#exportBtn .export-text");
+  if (label) label.textContent = text;
+}
+
 const CLIENT_ID = "421221289192-qtf3spuf5bqgd8m4ss201kstc9vqtqf8.apps.googleusercontent.com";
 const SCOPES = "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email";
 
@@ -38,8 +44,9 @@ window.handleClientLoad = function () {
         }).then((res) => res.json());
 
         const loginBtn = document.getElementById("loginBtn");
-        if (loginBtn) {
-          loginBtn.textContent = userInfo.email.split("@")[0];
+        const loginText = document.getElementById("loginText");
+        if (loginBtn && loginText) {
+          loginText.textContent = userInfo.email.split("@")[0];
           loginBtn.disabled = true;
           loginBtn.classList.add("active");
         }
@@ -71,10 +78,10 @@ function updateExportBtnUI() {
   exportBtn.disabled = !hasToken; // 未登入時停用
 
   if (isExported) {
-    exportBtn.textContent = "🗑️ 刪除 Google 日曆所有事件";
+    setExportLabel("刪除 Google 日曆所有事件");
     exportBtn.classList.add("delete-mode");
   } else {
-    exportBtn.textContent = "📤 導出到 Google 日曆";
+    setExportLabel("導出到 Google 日曆");
     exportBtn.classList.remove("delete-mode");
   }
 }
@@ -87,7 +94,13 @@ async function exportAllEvents() {
   }
 
   // 1. 撈出所有爬下來的事件
-  const allEvents = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
+  let allEvents = [];
+  try {
+    const cached = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
+    if (Array.isArray(cached)) allEvents = cached;
+  } catch {
+    // 快取壞掉就當作沒有事件
+  }
 
   const savedSelectedGames = JSON.parse(
     localStorage.getItem("selectedGames") || '["原神", "鐵道", "鳴潮", "異環"]'
@@ -106,7 +119,7 @@ async function exportAllEvents() {
   const exportBtn = getExportBtn();
   if (exportBtn) {
     exportBtn.disabled = true;
-    exportBtn.textContent = "⏳ 導出中 (請勿關閉視窗)...";
+    setExportLabel("導出中 (請勿關閉視窗)...");
   }
 
   console.log(`準備導出 ${eventsToExport.length} 個事件... (已排除未勾選遊戲)`);
@@ -145,7 +158,7 @@ async function deleteAllEvents() {
   const exportBtn = getExportBtn();
   if (exportBtn) {
     exportBtn.disabled = true;
-    exportBtn.textContent = "⏳ 刪除中 (請勿關閉視窗)...";
+    setExportLabel("刪除中 (請勿關閉視窗)...");
   }
 
   try {

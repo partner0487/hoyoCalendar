@@ -7,6 +7,16 @@ const gameColors = {
 
 let selectedGames = new Set(["原神", "鐵道", "鳴潮", "異環"]);
 
+// 讀取快取的事件；舊版可能存過 API 的錯誤物件，不是陣列就當作沒有快取
+function loadCachedEvents() {
+  try {
+    const data = JSON.parse(localStorage.getItem("calendarEvents") || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const calendarEl = document.getElementById("calendar");
   const loadingScreen = document.getElementById("loadingScreen");
@@ -99,36 +109,36 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
+  // 只改按鈕裡的文字 span，保留 SVG 圖示
+  const updateText = document.getElementById("updateText");
+
   async function loadCalendarData(url) {
     loadingScreen.style.display = "inline-block";
     updateBtn.disabled = true;
-    updateBtn.textContent = "更新中...";
+    updateText.textContent = "更新中...";
 
     let events = [];
 
     try {
       const res = await fetch(url);
-      events = await res.json();
+      const data = await res.json();
+      // API 出錯時回傳的是 {"error": ...}，不能拿來覆蓋快取
+      if (!res.ok || !Array.isArray(data)) {
+        throw new Error(data && data.error ? data.error : `HTTP ${res.status}`);
+      }
+      events = data;
       localStorage.setItem("calendarEvents", JSON.stringify(events));
     } catch (e) {
       console.error("抓取失敗，使用本地資料 fallback:", e);
-      const fallback = localStorage.getItem("calendarEvents");
-      if (fallback) events = JSON.parse(fallback);
+      events = loadCachedEvents();
+    } finally {
+      loadingScreen.style.display = "none";
+      updateBtn.disabled = false;
+      updateText.textContent = "更新資料";
     }
 
-    // 渲染日曆事件
+    // 渲染日曆事件（導出按鈕的啟用狀態由 google.js 依登入狀態控制）
     renderEvents(events);
-
-    // 判定登入按鈕與導出按鈕狀態
-    const exportBtn = document.getElementById("exportBtn");
-    const loginBtn = document.getElementById("loginBtn");
-    if (loginBtn && exportBtn) {
-      exportBtn.disabled = loginBtn.textContent === "登入 Google 帳號";
-    }
-
-    loadingScreen.style.display = "none";
-    updateBtn.disabled = false;
-    updateBtn.textContent = "🔄 更新資料";
 
     // ─── 💡 核心新增：優雅解鎖序幕遮罩 ───
     const initOverlay = document.getElementById("initOverlay");
@@ -160,20 +170,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 先讀本地快取
   // 1. 先讀取本地快取
-  const saved = localStorage.getItem("calendarEvents");
-  if (saved) {
-    renderEvents(JSON.parse(saved));
+  const saved = loadCachedEvents();
+  if (saved.length) {
+    renderEvents(saved);
 
     // 🎯 重點：既然本地有快取，日曆已經畫好了，立刻拉開序幕！使用者體感延遲直接歸零！
     dismissInitOverlay();
   }
 
-  // 2. 隨後默默在背景抓取最新資料，更新 localStorage 並重繪日曆
-  loadCalendarData("/api/update");
-
-  // 抓取最新資料
+  // 2. 隨後在背景抓取最新資料，更新 localStorage 並重繪日曆
   loadCalendarData("/api/update");
 
   // 更新按鈕事件
@@ -187,11 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("#gameFilter input:checked")
         .forEach(cb => selectedGames.add(cb.value));
 
-      const events = JSON.parse(
-        localStorage.getItem("calendarEvents") || "[]"
-      );
-
-      renderEvents(events);
+      renderEvents(loadCachedEvents());
 
       localStorage.setItem(
         "selectedGames",
