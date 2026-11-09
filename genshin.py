@@ -38,18 +38,21 @@ def fetch_genshin():
     ]
 
     for post in posts:
-        raw_title = post["sTitle"]
+        raw_title = post.get("sTitle") or ""
+        raw_content = post.get("sContent") or ""
+        if not raw_title or not raw_content:
+            continue
 
         # ✔ 解析圖片 URL（重點）
         img_url = None
         try:
             ext = json.loads(post.get("sExt", "{}"))
             img_url = ext.get("banner", [{}])[0].get("url")
-        except:
-            pass
+        except (ValueError, TypeError, AttributeError, IndexError) as e:
+            print(f"Genshin 圖片解析失敗（{raw_title}）：{e}")
 
         # HTML → 純文字
-        content_text = BeautifulSoup(post["sContent"], "html.parser").get_text()
+        content_text = BeautifulSoup(raw_content, "html.parser").get_text()
         
         clean_title = raw_title.split("更")[0].strip()
         version_date = None
@@ -69,7 +72,8 @@ def fetch_genshin():
                         "dates": dt.strftime("%Y-%m-%d"),
                         "image": img_url if rule["title"] == "版本更新" else None,
                     })
-                except:
+                except ValueError:
+                    print(f"Genshin 日期格式錯誤，已略過：{d}")
                     continue
         
         if version_date:
@@ -86,7 +90,13 @@ def fetch_genshin():
         spiral_matches = re.findall(r"深境螺旋將於(\d{1,2})月(\d{1,2})日更新", content_text)
         for month, day in spiral_matches:
             if version_date:
-                dt = datetime(year=version_date.year, month=int(month), day=int(day))
+                # 公告只寫「X月X日」：月份比版本月份小代表跨年（例如 12 月版本、1 月螺旋）
+                year = version_date.year + (1 if int(month) < version_date.month else 0)
+                try:
+                    dt = datetime(year=year, month=int(month), day=int(day))
+                except ValueError:
+                    print(f"Genshin 深境螺旋日期錯誤，已略過：{month}月{day}日")
+                    continue
                 all_matches.append({
                     "game": "原神",
                     "title": "深境螺旋 更新",

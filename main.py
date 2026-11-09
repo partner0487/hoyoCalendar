@@ -5,13 +5,23 @@ from ww import fetch_ww
 from nte import fetch_nte
 
 
+FETCHERS = [
+    ("原神", fetch_genshin),
+    ("鐵道", fetch_starrail),
+    ("鳴潮", fetch_ww),
+    ("異環", fetch_nte),
+]
+
+
 def fetch_all():
     results = []
 
-    results.extend(fetch_genshin())
-    results.extend(fetch_starrail())
-    results.extend(fetch_ww())
-    results.extend(fetch_nte())
+    # 每個遊戲各自處理錯誤：其中一個官網改版壞掉，其他遊戲仍能正常顯示
+    for name, fetch in FETCHERS:
+        try:
+            results.extend(fetch())
+        except Exception as e:
+            print(f"{name} 抓取失敗，已略過：{e}")
 
     return results
 

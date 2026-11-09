@@ -92,6 +92,11 @@ def fetch_ww(target_count=7):
                 dt = datetime.strptime(matches[0], "%Y年%m月%d日")
                 dates = dt.strftime("%Y-%m-%d")
             
+            if not dt:
+                # 沒有日期的事件無法放上行事曆（前端會拿到 null）
+                print(f"鳴潮公告找不到更新日期，已略過：{post['articleTitle']}")
+                continue
+
             img_tag = soup.find("img")
             if img_tag and img_tag.get("src"):
                 img_url = img_tag["src"]
@@ -103,15 +108,14 @@ def fetch_ww(target_count=7):
                 "image": img_url
             })
             
-            if dt:
-                second_half_date = dt + timedelta(days=21)
-                second_half_title = clean_title.replace("版本", "").strip() + " 下半卡池"
-                results.append({
-                    "game": "鳴潮",
-                    "title": second_half_title,
-                    "dates": second_half_date.strftime("%Y-%m-%d"),
-                    "image": None
-                })  
+            second_half_date = dt + timedelta(days=21)
+            second_half_title = clean_title.replace("版本", "").strip() + " 下半卡池"
+            results.append({
+                "game": "鳴潮",
+                "title": second_half_title,
+                "dates": second_half_date.strftime("%Y-%m-%d"),
+                "image": None
+            })
         except Exception as e:
             print(f"Detail parsing error: {e}")
             continue

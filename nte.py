@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import time
 
+MAX_PAGES = 3  # 每頁約 4 則新聞，3 頁約涵蓋半年的角色卡池
+
 def get_nte_orbital_events():
     # 1. 最初的起點
     current_pointer = datetime(2026, 5, 7)
@@ -121,7 +123,8 @@ def parse_single_page(soup, headers):
 
 def fetch_nte():
     """
-    異環資料獲取主入口：爬取全部分頁並結合軌外之境日程
+    異環資料獲取主入口：爬取前 MAX_PAGES 頁並結合軌外之境日程
+    （軌外之境官網不公告，日期由 get_nte_orbital_events 自行推算）
     """
     base_url = "https://nte.iwplay.com.tw/news/"
     first_page_url = f"{base_url}list_1_1.html"
@@ -144,8 +147,10 @@ def fetch_nte():
             page_numbers = [int(a.text.strip()) for a in page_links if a.text.strip().isdigit()]
             if page_numbers:
                 total_pages = max(page_numbers)
-                
-        print(f"偵測到《異環》官方新聞共有 {total_pages} 頁，開始爬取...")
+
+        # 角色卡池新聞都在前幾頁；全爬會讓 /api/update 越來越慢，可能超過 Vercel 執行時間上限
+        total_pages = min(total_pages, MAX_PAGES)
+        print(f"開始爬取《異環》官方新聞前 {total_pages} 頁...")
 
         # 循環爬取每一頁
         for page in range(1, total_pages + 1):
